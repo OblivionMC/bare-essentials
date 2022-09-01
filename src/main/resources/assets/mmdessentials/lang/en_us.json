@@ -1,0 +1,11 @@
+{
+  "mmdessentials.tpa.toomanyrequests": "You cannot send more than one teleport request at a time!",
+  "mmdessentials.tpa.incoming": "%s wants to teleport to you.",
+  "mmdessentials.tpa.sent": "Teleport Request sent to %s.",
+  "mmdessentials.tpa.norequests": "You have no pending teleport requests!",
+  "mmdessentials.tpa.inprogress": "Teleport Request accepted, teleporting..",
+  "mmdessentials.tpa.denied": "%s denied your teleport request.",
+  "mmdessentials.tpa.denysuccess": "Incoming teleport request denied.",
+
+  "mmdessentials.setworldspawn.success": "Fast World Spawn set."
+}
