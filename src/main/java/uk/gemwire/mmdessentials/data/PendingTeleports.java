@@ -1,6 +1,5 @@
 package uk.gemwire.mmdessentials.data;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;

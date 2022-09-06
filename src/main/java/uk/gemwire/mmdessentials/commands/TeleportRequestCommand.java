@@ -12,7 +12,7 @@ public class TeleportRequestCommand {
 
     public static int tpa(CommandContext<CommandSourceStack> pSource) throws CommandSyntaxException {
         var target = EntityArgument.getPlayer(pSource, "user");
-        var sender =  pSource.getSource().getPlayer();
+        var sender = pSource.getSource().getPlayer();
 
         if (PendingTeleports.getRequestFrom(sender) != null) {
             sender.sendSystemMessage(Component.translatable("mmdessentials.tpa.toomanyrequests"));
@@ -27,7 +27,7 @@ public class TeleportRequestCommand {
     }
 
     public static int accept(CommandContext<CommandSourceStack> pSource) {
-        var target =  pSource.getSource().getPlayer();
+        var target = pSource.getSource().getPlayer();
         var request = PendingTeleports.getRequestFor(target);
 
         if (request == null) {
@@ -43,7 +43,7 @@ public class TeleportRequestCommand {
     }
 
     public static int deny(CommandContext<CommandSourceStack> pSource) {
-        var target =  pSource.getSource().getPlayer();
+        var target = pSource.getSource().getPlayer();
         var request = PendingTeleports.getRequestFor(target);
 
         if (request == null) {

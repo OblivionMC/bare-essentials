@@ -1,13 +1,31 @@
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import com.diluv.schoomp.Webhook
+import com.diluv.schoomp.message.Message
+import com.diluv.schoomp.message.embed.Embed
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.diluv.schoomp:Schoomp:1.2.6")
+    }
+}
+
 plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'org.cadixdev.licenser' version '0.6.1'
+    id 'net.darkhax.curseforgegradle' version '1.0.11'
 }
 
-version = '1.0'
-group = 'uk.gemwire' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'mmdessentials'
+version = mod_version
+group = mod_group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = mod_id
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -27,9 +45,12 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'parchment', version: '2022.08.28-1.19.2'
+    mappings channel: mappings_channel, version: mappings_version
 
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
+    if (project.forge_ats_enabled) {
+        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
+        project.logger.debug("Forge Access Transformers are enabled for the project ${mod_name}.")
+    }
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -50,13 +71,22 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
+            property 'forge.enabledGameTestNamespaces', mod_id
 
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
+            // These arguments allow for optional authentication with Mojang servers.
+            // If you want to authenticate, put these properties in GRADLE_HOME/gradle.properties.
+            // By default, this is C:\Users\<your username>\.gradle\gradle.properties on Windows or ~/.gradle/gradle.properties on Linux/MacOS.
+            if (project.hasProperty('mc_uuid')) {
+                // Your UUID, trimmed / without the dashes
+                args '--uuid', project.getProperty('mc_uuid')
             }
+
+            if (project.hasProperty('mc_username')) {
+                // Your Minecraft in-game username, not email
+                args '--username', project.getProperty('mc_username')
+            }
+
+            mods.create("${mod_id}").source(sourceSets.main)
         }
 
         server {
@@ -66,13 +96,11 @@ minecraft {
 
             property 'forge.logging.console.level', 'debug'
 
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
+            args '--singleplayer', "yes", '--nogui', "true"
 
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            mods.create("${mod_id}").source(sourceSets.main)
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -85,13 +113,11 @@ minecraft {
 
             property 'forge.logging.console.level', 'debug'
 
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
+            args '--singleplayer', "yes", '--nogui', "true"
 
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            mods.create("${mod_id}").source(sourceSets.main)
         }
 
         data {
@@ -102,13 +128,9 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
+            mods.create("${mod_id}").source(sourceSets.main)
         }
     }
 }
@@ -130,7 +152,7 @@ dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.3'
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
@@ -145,18 +167,28 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 }
 
-// Example for how to get properties into the manifest for reading at runtime.
+var manifestAttributes = [
+        "Specification-Title"      : mod_name,
+        "Specification-Vendor"     : mod_author,
+        "Specification-Version"    : "1", // We are version 1 of ourselves
+        "Implementation-Title"     : mod_name,
+        "Implementation-Version"   : project.jar.archiveVersion,
+        "Implementation-Vendor"    : mod_author,
+        "Implementation-Timestamp" : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+        "Built-On-Java"            : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+        "Build-On-Minecraft"       : minecraft_version
+]
+
 jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "examplemod",
-                "Specification-Vendor"    : "examplemodsareus",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "examplemodsareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+    from("LICENSE.txt") {
+        rename {
+            "LICENSE_${archiveBaseName.get()}"
+        }
+
+        manifest.attributes(manifestAttributes)
+        includeEmptyDirs false
+        preserveFileTimestamps = false
+        reproducibleFileOrder = true
     }
 }
 
@@ -181,4 +213,62 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+
+license {
+    ignoreFailures = false
+    header = project.file('LicenseHeader.txt')
+    include '**/*.java'
+    include '**/*.kt'
+    exclude '**/package-info.java'
+    exclude '**/module-info.java'
+    newLine = false
+    properties {
+        year = actualDateTime.getYear()
+        name = mod_name
+        source = mod_source
+        author = mod_author
+    }
+}
+
+task publishToCurseForge(type: TaskPublishCurseForge) {
+    apiToken = project.findProperty("curseforge_api_token") ?: "invalid/no CurseForge API token found!"
+
+    def mainFile = upload(curseforge_project_id, file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar"))
+
+    mainFile.displayName = "${archivesBaseName}-${version}"
+    mainFile.releaseType = curseforge_release_type
+    mainFile.addModLoader(curseforge_mod_loader)
+    mainFile.addGameVersion(minecraft_version)
+    mainFile.addJavaVersion(curseforge_java_version)
+
+    //mainFile.addRequirement('fabric-api') //Fabric API slug
+    //mainFile.addEmbedded('cloth-config') //Cloth Config slug
+    mainFile.changelog = mod_changelog_url
+}
+
+tasks.publishToCurseForge.dependsOn(tasks.assemble)
+
+tasks.getByName("publishToCurseForge").doLast {
+    try {
+        def webhook = new Webhook(discord_webhook, "${mod_name} Gradle Upload");
+
+        def message = new Message();
+        message.setUsername("Mod Update: ${mod_name}");
+        message.setContent("${mod_name} ${mod_version} for Minecraft version ${minecraft_version} has been uploaded pending review!");
+
+        def embed = new Embed();
+        embed.addField('Download:', "${mod_homepage}/files/", false);
+        embed.addField('Change Log:', mod_changelog_url, false);
+        embed.setColor(0xFF8000);
+        message.addEmbed(embed);
+
+        webhook.sendMessage(message);
+    }
+
+    catch (IOException exception) {
+        println 'Failed to push to the Discord webhook.'
+    }
 }
