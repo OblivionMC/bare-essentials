@@ -18,3 +18,7 @@
     <img src="https://img.shields.io/github/last-commit/minecraftmoddevelopmentmods/mmdessentials.svg">
 </a>
 </p>
+
+## Commands list:  
+- ``/tpa <playername>`` Send another player a request to teleport to them. they can either ``/tpa accept`` or ``/tpa deny`` the request.  
+- ``/fastworldspawn`` Set the spawn point to an exact position in the world quickly.  
