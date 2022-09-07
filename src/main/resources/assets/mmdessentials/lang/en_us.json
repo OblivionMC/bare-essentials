@@ -7,5 +7,8 @@
   "mmdessentials.tpa.denied": "%s denied your teleport request.",
   "mmdessentials.tpa.denysuccess": "Incoming teleport request denied.",
 
-  "mmdessentials.setworldspawn.success": "Fast World Spawn set."
+  "mmdessentials.setworldspawn.success": "Fast World Spawn set.",
+
+  "mmdessentials.fly.enabled": "You can now fly!",
+  "mmdessentials.fly.disabled": "You can no longer fly!"
 }

@@ -8,6 +8,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import static net.minecraft.commands.Commands.literal;
 
 public class ModCommands {
+
     public static void registerCommands(RegisterCommandsEvent e) {
         e.getDispatcher().register(
             literal("fastworldspawn")
@@ -26,6 +27,12 @@ public class ModCommands {
                 .then(Commands.literal("deny")
                     .executes(TeleportRequestCommand::deny)
                 )
+        );
+
+        e.getDispatcher().register(
+            literal("fly")
+                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .executes((s) -> FlyCommand.execute(s.getSource()))
         );
     }
 }
