@@ -1,5 +1,5 @@
 <h1 align="center">Bare Essentials</h1>
-<h5 align="center">A reimplementation of some of the features of the old Essentials mod, plus some personal twists intended for the public servers.</h5>
+<h5 align="center">A reimplementation of some features from the old Essentials mod, with some personal twists intended for public servers.</h5>
 
 <p align="center">
 <a href="https://discord.mcmoddev.com">
@@ -14,7 +14,7 @@
     <img src="https://cf.way2muchnoise.eu/full_bare-essentials_downloads.svg"/>
 </a>
 
-<a href="https://github.com/minecraftmoddevelopmentmods/bare-essentials/commits/master">
+<a href="https://github.com/minecraftmoddevelopmentmods/bare-essentials/commits/dev">
     <img src="https://img.shields.io/github/last-commit/minecraftmoddevelopmentmods/bare-essentials.svg">
 </a>
 </p>

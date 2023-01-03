@@ -1,11 +1,11 @@
-package uk.gemwire.mmdessentials.commands;
+package uk.gemwire.bareessentials.commands;
 
 import com.mojang.brigadier.Command;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
 /**
- * Allow the player to fly creative style when used.
+ * Allow the player to fly creative style without being in creative mode.
  */
 public class FlyCommand {
 

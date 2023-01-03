@@ -1,4 +1,4 @@
-package uk.gemwire.mmdessentials.data;
+package uk.gemwire.bareessentials.data;
 
 import net.minecraft.server.level.ServerPlayer;
 
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PendingTeleports {
+
     public record TeleportRequest(ServerPlayer sender, ServerPlayer receiver, boolean pending) {
     }
 

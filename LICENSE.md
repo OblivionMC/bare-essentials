@@ -1,5 +1,5 @@
 MIT License
-MMD Essentials - https://github.com/minecraftmoddevelopmentmods/mmdessentials
+Bare Essentials - https://github.com/minecraftmoddevelopmentmods/bare-essentials
 Copyright (C) 2022 <Curle>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,0 +1,14 @@
+{
+  "bareessentials.tpa.toomanyrequests": "You cannot send more than one teleport request at a time!",
+  "bareessentials.tpa.incoming": "%s wants to teleport to you.",
+  "bareessentials.tpa.sent": "Teleport Request sent to %s.",
+  "bareessentials.tpa.norequests": "You have no pending teleport requests!",
+  "bareessentials.tpa.inprogress": "Teleport Request accepted, teleporting..",
+  "bareessentials.tpa.denied": "%s denied your teleport request.",
+  "bareessentials.tpa.denysuccess": "Incoming teleport request denied.",
+
+  "bareessentials.setworldspawn.success": "Fast World Spawn set! Players will now spawn here exactly!",
+
+  "bareessentials.fly.enabled": "You can now fly!",
+  "bareessentials.fly.disabled": "You can no longer fly!"
+}

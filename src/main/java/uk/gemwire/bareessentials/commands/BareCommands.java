@@ -1,4 +1,4 @@
-package uk.gemwire.mmdessentials.commands;
+package uk.gemwire.bareessentials.commands;
 
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -7,16 +7,17 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 
 import static net.minecraft.commands.Commands.literal;
 
-public class ModCommands {
+public class BareCommands {
 
-    public static void registerCommands(RegisterCommandsEvent e) {
-        e.getDispatcher().register(
+    public static void registerCommands(RegisterCommandsEvent event) {
+        event.getDispatcher().register(
             literal("fastworldspawn")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .executes((s) -> WorldSpawnCommand.execute(s.getSource(), new BlockPos(s.getSource().getPosition()), 0.0F))
+                .executes((s) -> WorldSpawnCommand.execute(s.getSource(),
+                    new BlockPos(s.getSource().getPosition()), 0.0F))
         );
 
-        e.getDispatcher().register(
+        event.getDispatcher().register(
             literal("tpa")
                 .then(Commands.argument("user", EntityArgument.player())
                     .executes(TeleportRequestCommand::tpa)
@@ -29,7 +30,7 @@ public class ModCommands {
                 )
         );
 
-        e.getDispatcher().register(
+        event.getDispatcher().register(
             literal("fly")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
                 .executes((s) -> FlyCommand.execute(s.getSource()))
