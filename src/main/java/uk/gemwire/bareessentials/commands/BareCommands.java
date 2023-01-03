@@ -31,6 +31,11 @@ public class BareCommands {
         );
 
         event.getDispatcher().register(
+            literal("spawn")
+                .executes((s) -> SpawnCommand.execute(s.getSource()))
+        );
+
+        event.getDispatcher().register(
             literal("fly")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
                 .executes((s) -> FlyCommand.execute(s.getSource()))
