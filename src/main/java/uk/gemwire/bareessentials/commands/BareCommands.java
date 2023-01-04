@@ -11,9 +11,9 @@ public class BareCommands {
 
     public static void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
-            literal("fastworldspawn")
+            literal("setspawn")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .executes((s) -> WorldSpawnCommand.execute(s.getSource(),
+                .executes((s) -> CmdSetWorldSpawn.execute(s.getSource(),
                     new BlockPos(s.getSource().getPosition()), 0.0F))
         );
 
@@ -32,13 +32,13 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("spawn")
-                .executes((s) -> SpawnCommand.execute(s.getSource()))
+                .executes((s) -> CmdSpawn.execute(s.getSource()))
         );
 
         event.getDispatcher().register(
             literal("fly")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .executes((s) -> FlyCommand.execute(s.getSource()))
+                .executes((s) -> CmdFly.execute(s.getSource()))
         );
     }
 }

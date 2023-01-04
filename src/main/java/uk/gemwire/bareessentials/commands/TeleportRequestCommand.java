@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import uk.gemwire.bareessentials.data.PendingTeleports;
 
@@ -15,14 +16,16 @@ public class TeleportRequestCommand {
         var sender = pSource.getSource().getPlayer();
 
         if (PendingTeleports.getRequestFrom(sender) != null) {
-            sender.sendSystemMessage(Component.translatable(
-                "You cannot send more than one teleport request at a time!"));
+            sender.sendSystemMessage(Component.translatable(Language.getInstance()
+                .getOrDefault("bareessentials.tpa.toomanyrequests")));
             return 0;
         }
 
-        target.sendSystemMessage(Component.translatable("%s wants to teleport to you.", sender.getDisplayName()));
+        target.sendSystemMessage(Component.translatable(Language.getInstance()
+            .getOrDefault("bareessentials.tpa.incoming"), sender.getDisplayName()));
         PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(target, sender, true));
-        sender.sendSystemMessage(Component.translatable("Teleport Request sent to %s.", target.getDisplayName()));
+        sender.sendSystemMessage(Component.translatable(Language.getInstance()
+            .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName()));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -32,12 +35,15 @@ public class TeleportRequestCommand {
         var request = PendingTeleports.getRequestFor(target);
 
         if (request == null) {
-            target.sendSystemMessage(Component.translatable("You have no pending teleport requests!"));
+            target.sendSystemMessage(Component.translatable(Language.getInstance()
+                .getOrDefault("bareessentials.tpa.norequests")));
             return 0;
         }
 
-        request.sender().sendSystemMessage(Component.translatable("Teleport Request accepted, teleporting.."));
-        target.sendSystemMessage(Component.translatable("Teleport Request accepted, teleporting.."));
+        request.sender().sendSystemMessage(Component.translatable(Language.getInstance()
+            .getOrDefault("bareessentials.tpa.inprogress")));
+        target.sendSystemMessage(Component.translatable(Language.getInstance()
+            .getOrDefault("bareessentials.tpa.inprogress")));
         request.sender().teleportTo(target.getX(), target.getY(), target.getZ());
 
         return Command.SINGLE_SUCCESS;
@@ -48,14 +54,15 @@ public class TeleportRequestCommand {
         var request = PendingTeleports.getRequestFor(target);
 
         if (request == null) {
-            target.sendSystemMessage(Component.translatable("You have no pending teleport requests!"));
+            target.sendSystemMessage(Component.translatable(Language.getInstance()
+                .getOrDefault("bareessentials.tpa.norequests")));
             return 0;
         }
 
         PendingTeleports.PENDING.remove(request);
-        request.sender().sendSystemMessage(Component.translatable(
-            "%s denied your teleport request.", target.getDisplayName()));
-        target.sendSystemMessage(Component.translatable("Incoming teleport request denied."));
+        request.sender().sendSystemMessage(Component.translatable(Language.getInstance()
+            .getOrDefault("bareessentials.tpa.denied"), target.getDisplayName()));
+        target.sendSystemMessage(Component.translatable("bareessentials.tpa.denysuccess"));
 
         return Command.SINGLE_SUCCESS;
     }

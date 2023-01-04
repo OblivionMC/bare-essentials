@@ -1,10 +1,10 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/bare-essentials",
   "promos": {
-    "1.19.2-latest": "1.0.0",
-    "1.19.2-recommended": "1.0.0"
+    "1.19.3-latest": "1.0.0",
+    "1.19.3-recommended": "1.0.0"
   },
-  "1.19.2": {
+  "1.19.3": {
     "1.0.0": "https://raw.githubusercontent.com/MinecraftModDevelopmentMods/bare-essentials/dev/changelog.md"
   }
 }
