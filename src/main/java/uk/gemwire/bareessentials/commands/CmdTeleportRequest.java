@@ -9,7 +9,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import uk.gemwire.bareessentials.data.PendingTeleports;
 
-public class TeleportRequestCommand {
+public class CmdTeleportRequest {
 
     public static int tpa(CommandContext<CommandSourceStack> pSource) throws CommandSyntaxException {
         var target = EntityArgument.getPlayer(pSource, "user");

@@ -11,5 +11,8 @@
   "bareessentials.spawn.tospawn": "Teleporting to world spawn...",
 
   "bareessentials.fly.enabled": "You can now fly!",
-  "bareessentials.fly.disabled": "You can no longer fly!"
+  "bareessentials.fly.disabled": "You can no longer fly!",
+
+  "bareessentials.godmode.enabled": "God mode enabled!",
+  "bareessentials.godmode.disabled": "God mode disabled!"
 }

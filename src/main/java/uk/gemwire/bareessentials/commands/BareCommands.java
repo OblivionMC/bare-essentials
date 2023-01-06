@@ -20,13 +20,13 @@ public class BareCommands {
         event.getDispatcher().register(
             literal("tpa")
                 .then(Commands.argument("user", EntityArgument.player())
-                    .executes(TeleportRequestCommand::tpa)
+                    .executes(CmdTeleportRequest::tpa)
                 )
                 .then(Commands.literal("accept")
-                    .executes(TeleportRequestCommand::accept)
+                    .executes(CmdTeleportRequest::accept)
                 )
                 .then(Commands.literal("deny")
-                    .executes(TeleportRequestCommand::deny)
+                    .executes(CmdTeleportRequest::deny)
                 )
         );
 
@@ -39,6 +39,12 @@ public class BareCommands {
             literal("fly")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
                 .executes((s) -> CmdFly.execute(s.getSource()))
+        );
+
+        event.getDispatcher().register(
+            literal("god")
+                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .executes((s) -> CmdGod.execute(s.getSource()))
         );
     }
 }
