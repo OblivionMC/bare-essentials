@@ -11,10 +11,21 @@ public class BareCommands {
 
     public static void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
-            literal("fastworldspawn")
+            literal("setspawn")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
                 .executes((s) -> WorldSpawnCommand.execute(s.getSource(),
                     new BlockPos(s.getSource().getPosition()), 0.0F))
+        );
+
+        event.getDispatcher().register(
+            literal("spawn")
+                .executes((s) -> SpawnCommand.execute(s.getSource()))
+        );
+
+        event.getDispatcher().register(
+            literal("god")
+                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .executes((s) -> GodCommand.execute(s.getSource()))
         );
 
         event.getDispatcher().register(
