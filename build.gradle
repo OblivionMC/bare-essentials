@@ -1,16 +1,9 @@
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import com.diluv.schoomp.Webhook
-import com.diluv.schoomp.message.Message
-import com.diluv.schoomp.message.embed.Embed
-import net.darkhax.curseforgegradle.TaskPublishCurseForge
 
-buildscript {
+buildscript{
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath("com.diluv.schoomp:Schoomp:1.2.6")
     }
 }
 
@@ -20,7 +13,6 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'org.cadixdev.licenser' version '0.6.1'
-    id 'net.darkhax.curseforgegradle' version '1.0.11'
 }
 
 version = mod_version
@@ -230,45 +222,5 @@ license {
         name = mod_name
         source = mod_source
         author = mod_author
-    }
-}
-
-task publishToCurseForge(type: TaskPublishCurseForge) {
-    apiToken = project.findProperty("curseforge_api_token") ?: "invalid/no CurseForge API token found!"
-
-    def mainFile = upload(curseforge_project_id, file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar"))
-
-    mainFile.displayName = "${archivesBaseName}-${version}"
-    mainFile.releaseType = curseforge_release_type
-    mainFile.addModLoader(curseforge_mod_loader)
-    mainFile.addGameVersion(minecraft_version)
-    mainFile.addJavaVersion(curseforge_java_version)
-
-    //mainFile.addRequirement('fabric-api') //Fabric API slug
-    //mainFile.addEmbedded('cloth-config') //Cloth Config slug
-    mainFile.changelog = mod_changelog_url
-}
-
-tasks.publishToCurseForge.dependsOn(tasks.assemble)
-
-tasks.getByName("publishToCurseForge").doLast {
-    try {
-        def webhook = new Webhook(discord_webhook, "${mod_name} Gradle Upload");
-
-        def message = new Message();
-        message.setUsername("Mod Update: ${mod_name}");
-        message.setContent("${mod_name} ${mod_version} for Minecraft version ${minecraft_version} has been uploaded pending review!");
-
-        def embed = new Embed();
-        embed.addField('Download:', "${mod_homepage}/files/", false);
-        embed.addField('Change Log:', mod_changelog_url, false);
-        embed.setColor(0xFF8000);
-        message.addEmbed(embed);
-
-        webhook.sendMessage(message);
-    }
-
-    catch (IOException exception) {
-        println 'Failed to push to the Discord webhook.'
     }
 }

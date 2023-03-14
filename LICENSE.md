@@ -1,6 +1,6 @@
 MIT License
-Bare Essentials - https://github.com/minecraftmoddevelopmentmods/bare-essentials
-Copyright (C) 2022 <Curle>
+Bare Essentials - https://github.com/OblivionMC/bare-essentials
+Copyright (C) 2022-2023 Curle
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
