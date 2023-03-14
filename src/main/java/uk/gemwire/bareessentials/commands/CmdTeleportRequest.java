@@ -57,7 +57,7 @@ public class CmdTeleportRequest {
         request.sender().sendSystemMessage(Component.translatable(Language.getInstance()
             .getOrDefault("bareessentials.tpa.inprogress"), request.receiver().getDisplayName().getString()));
         target.sendSystemMessage(Component.translatable(Language.getInstance() .getOrDefault("bareessentials.tpa.inprogress"),
-            Component.translatable(Language.getInstance().getOrDefault("bareessentials.tpa.targetyou"))
+            Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))
         ));
         request.sender().teleportTo(target.getX(), target.getY(), target.getZ());
 

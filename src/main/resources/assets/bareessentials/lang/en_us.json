@@ -4,7 +4,7 @@
   "bareessentials.tpa.sent": "Teleport request sent to %s.",
   "bareessentials.tpa.norequests": "You have no pending teleport requests!",
   "bareessentials.tpa.inprogress": "Teleport request accepted, teleporting to %s",
-  "bareessentials.tpa.targetyou": "you",
+  "bareessentials.targetyou": "you",
   "bareessentials.tpa.denied": "%s denied your teleport request.",
   "bareessentials.tpa.denysuccess": "Incoming teleport request denied.",
 
@@ -14,6 +14,6 @@
   "bareessentials.fly.enabled": "You can now fly!",
   "bareessentials.fly.disabled": "You can no longer fly!",
 
-  "bareessentials.godmode.enabled": "God mode enabled!",
-  "bareessentials.godmode.disabled": "God mode disabled!"
+  "bareessentials.godmode.enabled": "God mode enabled for %s!",
+  "bareessentials.godmode.disabled": "God mode disabled for %s!"
 }

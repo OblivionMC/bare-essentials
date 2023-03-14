@@ -44,7 +44,11 @@ public class BareCommands {
         event.getDispatcher().register(
             literal("god")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .executes((s) -> CmdGod.execute(s.getSource()))
+                .executes(CmdGod::executeOnSelf)
+
+                .then(Commands.argument("user", EntityArgument.player())
+                    .executes(CmdGod::executeOnOther)
+                )
         );
     }
 }
