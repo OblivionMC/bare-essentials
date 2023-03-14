@@ -11,8 +11,8 @@
   "bareessentials.spawn.setworldspawn.success": "Global spawn point set to: [X: %s, Y: %s, Z: %s]",
   "bareessentials.spawn.tospawn": "Teleporting to world spawn...",
 
-  "bareessentials.fly.enabled": "You can now fly!",
-  "bareessentials.fly.disabled": "You can no longer fly!",
+  "bareessentials.fly.enabled": "%s can now fly!",
+  "bareessentials.fly.disabled": "%s can no longer fly!",
 
   "bareessentials.godmode.enabled": "God mode enabled for %s!",
   "bareessentials.godmode.disabled": "God mode disabled for %s!"

@@ -38,7 +38,11 @@ public class BareCommands {
         event.getDispatcher().register(
             literal("fly")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .executes((s) -> CmdFly.execute(s.getSource()))
+                .executes(CmdFly::executeOnSelf)
+
+                .then(Commands.argument("user", EntityArgument.player())
+                    .executes(CmdFly::executeOnOther)
+                )
         );
 
         event.getDispatcher().register(
