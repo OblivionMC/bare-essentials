@@ -23,6 +23,8 @@
  */
 package uk.gemwire.bareessentials;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -31,6 +33,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.jmx.Server;
 import uk.gemwire.bareessentials.commands.BareCommands;
 import uk.gemwire.bareessentials.data.Bank;
 
@@ -48,15 +51,18 @@ public class BareEssentials {
         @SubscribeEvent
         public static void started(ServerStartedEvent e) {
             // Load bank details into the static map.
-            Bank.getAccounts();
-            LOGGER.info("Loaded " + Bank.ACCOUNTS.size() + " bank accounts.");
+            Bank accts = Bank.getOrCreate(e.getServer().getLevel(ServerLevel.OVERWORLD));
+            LOGGER.info("Loaded " + accts.accounts.size() + " bank accounts.");
         }
 
         @SubscribeEvent
         public static void login(PlayerEvent.PlayerLoggedInEvent e) {
-            if (!Bank.ACCOUNTS.containsKey(e.getEntity().getUUID())) {
+            if ((e.getEntity().getLevel().isClientSide())) return;
+
+            Bank accts = Bank.getOrCreate((ServerLevel) e.getEntity().getLevel());
+            if (!accts.hasUser((ServerPlayer) e.getEntity())) {
                 LOGGER.info("Generating empty bank account for " + e.getEntity().getDisplayName().getString());
-                Bank.ACCOUNTS.put(e.getEntity().getUUID(), 0L);
+                accts.accounts.put(e.getEntity().getUUID(), 0L);
             }
         }
     }

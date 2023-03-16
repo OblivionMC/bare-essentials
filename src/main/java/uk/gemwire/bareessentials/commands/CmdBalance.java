@@ -24,9 +24,11 @@ public class CmdBalance {
 
     public static int execute(CommandContext<CommandSourceStack> cmd, ServerPlayer player) {
 
-        if (Bank.ACCOUNTS.containsKey(player.getUUID())) {
+        Bank accts = Bank.getOrCreate(cmd.getSource().getLevel());
+
+        if (accts.hasUser(player)) {
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.balance"), player.getDisplayName().getString(), Bank.ACCOUNTS.get(player.getUUID())));
+                "bareessentials.balance"), player.getDisplayName().getString(), accts.getUserBalance(player)));
         } else {
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                 "bareessentials.balance.unable"), player.getDisplayName().getString()));
@@ -48,10 +50,13 @@ public class CmdBalance {
         public static int execute(CommandContext<CommandSourceStack> cmd, ServerPlayer player) {
             int amt = IntegerArgumentType.getInteger(cmd, "amount");
 
-            if (Bank.ACCOUNTS.containsKey(player.getUUID())) {
-                Bank.ACCOUNTS.replace(player.getUUID(), Bank.ACCOUNTS.get(player.getUUID()) + (long) amt);
+            Bank accts = Bank.getOrCreate(cmd.getSource().getLevel());
+
+            if (accts.hasUser(player)) {
+                accts.setUserBalance(player, accts.getUserBalance(player) + (long) amt);
+
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.give"), amt, player.getDisplayName().getString(), Bank.ACCOUNTS.get(player.getUUID())));
+                    "bareessentials.balance.give"), amt, player.getDisplayName().getString(), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.balance.unable"), player.getDisplayName().getString()));
@@ -74,10 +79,13 @@ public class CmdBalance {
         public static int execute(CommandContext<CommandSourceStack> cmd, ServerPlayer player) {
             int amt = IntegerArgumentType.getInteger(cmd, "amount");
 
-            if (Bank.ACCOUNTS.containsKey(player.getUUID())) {
-                Bank.ACCOUNTS.replace(player.getUUID(), (long) amt);
+            Bank accts = Bank.getOrCreate(cmd.getSource().getLevel());
+
+            if (accts.hasUser(player)) {
+                accts.setUserBalance(player, amt);
+
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.set"), player.getDisplayName().getString(), Bank.ACCOUNTS.get(player.getUUID())));
+                    "bareessentials.balance.set"), player.getDisplayName().getString(), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.balance.unable"), player.getDisplayName().getString()));
@@ -99,13 +107,15 @@ public class CmdBalance {
 
         public static int execute(CommandContext<CommandSourceStack> cmd, ServerPlayer player) {
             int amt = IntegerArgumentType.getInteger(cmd, "amount");
-            long balance =  Bank.ACCOUNTS.get(player.getUUID());
 
-            if (Bank.ACCOUNTS.containsKey(player.getUUID())) {
+            Bank accts = Bank.getOrCreate(cmd.getSource().getLevel());
+            long balance = accts.getUserBalance(player);
+
+            if (accts.hasUser(player)) {
+                accts.setUserBalance(player, balance - (balance - (long) amt <= 0 ? amt = (int) balance : (long) amt));
                 // Don't subtract more than they have; cap it at limiting to their balance.
-                Bank.ACCOUNTS.replace(player.getUUID(), balance - (balance - (long) amt <= 0 ? amt = (int) balance : (long) amt));
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.remove"), amt, player.getDisplayName().getString(), Bank.ACCOUNTS.get(player.getUUID())));
+                    "bareessentials.balance.remove"), amt, player.getDisplayName().getString(), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.balance.unable"), player.getDisplayName().getString()));
