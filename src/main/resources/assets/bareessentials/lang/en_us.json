@@ -23,5 +23,6 @@
   "bareessentials.balance.remove":  "Subtracted £%s from the balance of player %s. New total: %s.",
   "bareessentials.balance.unable": "Unable to view or modify player %s's balance. Something is wrong.",
 
-  "bareessentials.heal": "Healed %s."
+  "bareessentials.heal": "Healed %s.",
+  "bareessentials.feed": "Fed %s."
 }

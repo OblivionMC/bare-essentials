@@ -143,5 +143,15 @@ public class BareCommands {
                     .executes(CmdHeal::executeOnOther)
                 )
         );
+
+        event.getDispatcher().register(
+            literal("feed")
+                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .executes(CmdHeal.Feed::executeOnSelf)
+
+                .then(Commands.argument("user", EntityArgument.player())
+                    .executes(CmdHeal.Feed::executeOnOther)
+                )
+        );
     }
 }
