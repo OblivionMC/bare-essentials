@@ -24,5 +24,12 @@
   "bareessentials.balance.unable": "Unable to view or modify player %s's balance. Something is wrong.",
 
   "bareessentials.heal": "Healed %s.",
-  "bareessentials.feed": "Fed %s."
+  "bareessentials.feed": "Fed %s.",
+
+  "bareessentials.home.wrongdimension": "You can only use /home or /sethome in the Overworld!",
+  "bareessentials.home.teleporting": "Teleporting you to your home..",
+  "bareessentials.home.nohome": "You do not have a home to teleport to! Use /sethome somewhere safe.",
+
+  "bareessentials.sethome": "Setting your home!",
+  "bareessentials.sethome.overwrite": "Setting your home! (Overwriting previous home)"
 }

@@ -153,5 +153,15 @@ public class BareCommands {
                     .executes(CmdHeal.Feed::executeOnOther)
                 )
         );
+
+        event.getDispatcher().register(
+            literal("sethome")
+                .executes(CmdHomes.Set::execute)
+        );
+
+        event.getDispatcher().register(
+            literal("home")
+                .executes(CmdHomes::execute)
+        );
     }
 }

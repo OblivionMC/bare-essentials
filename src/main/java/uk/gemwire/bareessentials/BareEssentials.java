@@ -36,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.jmx.Server;
 import uk.gemwire.bareessentials.commands.BareCommands;
 import uk.gemwire.bareessentials.data.Bank;
+import uk.gemwire.bareessentials.data.Homes;
 
 @Mod("bareessentials")
 public class BareEssentials {
@@ -53,6 +54,8 @@ public class BareEssentials {
             // Load bank details into the static map.
             Bank accts = Bank.getOrCreate(e.getServer().getLevel(ServerLevel.OVERWORLD));
             LOGGER.info("Loaded " + accts.accounts.size() + " bank accounts.");
+            Homes homes = Homes.getOrCreate(e.getServer().getLevel(ServerLevel.OVERWORLD));
+            LOGGER.info("Loaded " + homes.homes.size() + " user homes.");
         }
 
         @SubscribeEvent
