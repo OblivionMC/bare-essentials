@@ -23,9 +23,10 @@
  */
 package uk.gemwire.bareessentials;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -33,13 +34,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.jmx.Server;
 import uk.gemwire.bareessentials.commands.BareCommands;
 import uk.gemwire.bareessentials.data.Bank;
 import uk.gemwire.bareessentials.data.Homes;
 
 @Mod("bareessentials")
 public class BareEssentials {
+
+    public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
+    public static GameRules.Key<GameRules.IntegerValue> DAILY_INCOME = GameRules.register("bankDailyIncome", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
     public static Logger LOGGER = LogManager.getLogger(BareEssentials.class);
 
     public BareEssentials() {
@@ -52,21 +55,24 @@ public class BareEssentials {
         @SubscribeEvent
         public static void started(ServerStartedEvent e) {
             // Load bank details into the static map.
-            Bank accts = Bank.getOrCreate(e.getServer().getLevel(ServerLevel.OVERWORLD));
+            Bank accts = Bank.getOrCreate(e.getServer().overworld());
             LOGGER.info("Loaded " + accts.accounts.size() + " bank accounts.");
-            Homes homes = Homes.getOrCreate(e.getServer().getLevel(ServerLevel.OVERWORLD));
+            Homes homes = Homes.getOrCreate(e.getServer().overworld());
             LOGGER.info("Loaded " + homes.homes.size() + " user homes.");
         }
 
         @SubscribeEvent
         public static void login(PlayerEvent.PlayerLoggedInEvent e) {
-            if ((e.getEntity().getLevel().isClientSide())) return;
+            if (e.getEntity().getLevel().isClientSide) return;
+            // Ensure the new player has a bank account so they receive income while offline.
+            Bank accts = Bank.getOrCreate(e.getEntity().getServer().overworld());
+            accts.getUserBalance((ServerPlayer) e.getEntity());
+        }
 
-            Bank accts = Bank.getOrCreate((ServerLevel) e.getEntity().getLevel());
-            if (!accts.hasUser((ServerPlayer) e.getEntity())) {
-                LOGGER.info("Generating empty bank account for " + e.getEntity().getDisplayName().getString());
-                accts.accounts.put(e.getEntity().getUUID(), 0L);
-            }
+        @SubscribeEvent
+        public static void tick(TickEvent.ServerTickEvent e) {
+            if (e.getServer().overworld().getDayTime() == 0)
+                Bank.getOrCreate(e.getServer().overworld()).updateBalances(e.getServer());
         }
     }
 }
