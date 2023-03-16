@@ -23,6 +23,7 @@
  */
 package uk.gemwire.bareessentials.commands;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
@@ -65,6 +66,60 @@ public class BareCommands {
 
                 .then(Commands.argument("user", EntityArgument.player())
                     .executes(CmdFly::executeOnOther)
+                )
+        );
+
+        event.getDispatcher().register(
+            literal("balance")
+                .requires(s -> s.hasPermission(Commands.LEVEL_ALL))
+                .executes(CmdBalance::executeOnSelf) // /balance
+
+                .then(Commands.argument("user", EntityArgument.player())
+                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+                    .executes(CmdBalance::executeOnOther) // /balance <user>
+                )
+
+                .then(Commands.literal("give")
+                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+
+                    .then(Commands.argument("amount", IntegerArgumentType.integer())
+                        .executes(CmdBalance.Give::executeOnSelf) // /balance give <amount>
+                    )
+
+                    .then(Commands.argument("user", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                            .executes(CmdBalance.Give::executeOnOther) // /balance give <user> <amount>
+                        )
+                    )
+
+                )
+
+                .then(Commands.literal("set")
+                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+
+                    .then(Commands.argument("amount", IntegerArgumentType.integer())
+                        .executes(CmdBalance.Set::executeOnSelf) // /balance set <amount>
+                    )
+
+                    .then(Commands.argument("user", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                            .executes(CmdBalance.Set::executeOnOther) // /balance set <user> <amount>
+                        )
+                    )
+                )
+
+                .then(Commands.literal("remove")
+                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+
+                    .then(Commands.argument("amount", IntegerArgumentType.integer())
+                        .executes(CmdBalance.Remove::executeOnSelf) // /balance remove <amount>
+                    )
+
+                    .then(Commands.argument("user", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                            .executes(CmdBalance.Remove::executeOnOther) // /balance remove <user> <amount>
+                        )
+                    )
                 )
         );
 

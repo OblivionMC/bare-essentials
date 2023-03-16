@@ -78,6 +78,8 @@ minecraft {
                 args '--username', project.getProperty('mc_username')
             }
 
+            args '--username', 'Dev##'
+
             mods.create("${mod_id}").source(sourceSets.main)
         }
 

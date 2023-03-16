@@ -15,5 +15,11 @@
   "bareessentials.fly.disabled": "%s can no longer fly!",
 
   "bareessentials.godmode.enabled": "God mode enabled for %s!",
-  "bareessentials.godmode.disabled": "God mode disabled for %s!"
+  "bareessentials.godmode.disabled": "God mode disabled for %s!",
+
+  "bareessentials.balance": "Player %s's balance is £%s.",
+  "bareessentials.balance.give" : "Added £%s to player %s's balance. New total: %s.",
+  "bareessentials.balance.set": "Set player %s's balance to £%s.",
+  "bareessentials.balance.remove":  "Subtracted £%s from the balance of player %s. New total: %s.",
+  "bareessentials.balance.unable": "Unable to view or modify player %s's balance. Something is wrong."
 }
