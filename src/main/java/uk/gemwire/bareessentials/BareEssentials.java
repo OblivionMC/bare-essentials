@@ -45,6 +45,7 @@ public class BareEssentials {
     public static GameRules.Key<GameRules.IntegerValue> DAILY_INCOME = GameRules.register("bankDailyIncome", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
     public static Logger LOGGER = LogManager.getLogger(BareEssentials.class);
 
+
     public BareEssentials() {
         IEventBus forge = MinecraftForge.EVENT_BUS;
         forge.addListener(BareCommands::registerCommands);

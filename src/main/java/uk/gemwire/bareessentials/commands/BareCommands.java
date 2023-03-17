@@ -24,11 +24,12 @@
 package uk.gemwire.bareessentials.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import uk.gemwire.bareessentials.data.Inventory;
+import uk.gemwire.bareessentials.invsee.Inventory;
 
 import static net.minecraft.commands.Commands.LEVEL_ADMINS;
 import static net.minecraft.commands.Commands.literal;
@@ -169,8 +170,9 @@ public class BareCommands {
         event.getDispatcher().register(
             literal("invsee")
                 .requires(s -> s.hasPermission(LEVEL_ADMINS))
-                .then(Commands.argument("user", EntityArgument.player())
-                    .executes(c -> Inventory.openInventoryOf(c.getSource().getPlayer(), EntityArgument.getPlayer(c, "user").getUUID()))
+                .then(Commands.argument("user", StringArgumentType.word())
+                    .executes(c -> Inventory.openInventoryOf(c.getSource().getPlayer(), StringArgumentType.getString(c, "user")))
+                    .suggests(Inventory.SUGGEST_USERS)
                 )
         );
     }
