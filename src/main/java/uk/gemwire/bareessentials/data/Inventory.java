@@ -118,19 +118,6 @@ public class Inventory {
             }
 
             userData.put("Inventory", listtag);
-
-            File f = ServerLifecycleHooks.getCurrentServer().getFile("playerdata/" + id + ".dat");
-
-            try {
-                File file1 = File.createTempFile(id + "-", ".dat", f.getParentFile());
-                NbtIo.writeCompressed(userData, file1);
-                File file2 = new File(f.getParentFile(), id + ".dat");
-                File file3 = new File(f.getParentFile(), id + ".dat_old");
-                Util.safeReplaceFile(file2, file1, file3);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
             // if player online, update their inventory immediately
 
             ServerPlayer oPlayer = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(id);
@@ -140,8 +127,21 @@ public class Inventory {
                 }
 
                 oPlayer.hurtMarked = true;
-            }
 
+            } else {
+
+                File f = ServerLifecycleHooks.getCurrentServer().getFile("playerdata/" + id + ".dat");
+
+                try {
+                    File file1 = File.createTempFile(id + "-", ".dat", f.getParentFile());
+                    NbtIo.writeCompressed(userData, file1);
+                    File file2 = new File(f.getParentFile(), id + ".dat");
+                    File file3 = new File(f.getParentFile(), id + ".dat_old");
+                    Util.safeReplaceFile(file2, file1, file3);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
