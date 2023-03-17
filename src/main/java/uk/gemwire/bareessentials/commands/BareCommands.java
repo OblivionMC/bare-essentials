@@ -28,7 +28,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import uk.gemwire.bareessentials.data.Inventory;
 
+import static net.minecraft.commands.Commands.LEVEL_ADMINS;
 import static net.minecraft.commands.Commands.literal;
 
 public class BareCommands {
@@ -162,6 +164,14 @@ public class BareCommands {
         event.getDispatcher().register(
             literal("home")
                 .executes(CmdHomes::execute)
+        );
+
+        event.getDispatcher().register(
+            literal("invsee")
+                .requires(s -> s.hasPermission(LEVEL_ADMINS))
+                .then(Commands.argument("user", EntityArgument.player())
+                    .executes(c -> Inventory.openInventoryOf(c.getSource().getPlayer(), EntityArgument.getPlayer(c, "user").getUUID()))
+                )
         );
     }
 }
