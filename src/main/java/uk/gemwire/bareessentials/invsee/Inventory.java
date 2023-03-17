@@ -53,6 +53,7 @@ public class Inventory {
 
     public static int openInventoryOf(ServerPlayer inspector, String username) {
 
+        BareEssentials.LOGGER.info(inspector.getDisplayName().getString() + " is opening the inventory of " + username);
         var optionalPlayer = ServerLifecycleHooks.getCurrentServer().getProfileCache().get(username);
         BareEssentials.LOGGER.info("Opening inventory for " + username + ", user " + (optionalPlayer.isPresent() ? "is present." : "is empty."));
         optionalPlayer.ifPresent(gameProfile -> NetworkHooks.openScreen(inspector, new SimpleMenuProvider((a, b, c) -> {
@@ -65,7 +66,6 @@ public class Inventory {
 
         return Command.SINGLE_SUCCESS;
     }
-
 
     public static class MiniInventoryMenu extends ChestMenu {
         UUID id;
@@ -154,7 +154,7 @@ public class Inventory {
         private CompoundTag userData;
 
         public OfflinePlayerInventory(final UUID target) {
-            super(new FakePlayer(ServerLifecycleHooks.getCurrentServer().overworld(), new GameProfile(UUID.fromString("invsee"), "invsee")));
+            super(new FakePlayer(ServerLifecycleHooks.getCurrentServer().overworld(), new GameProfile(UUID.fromString("bc27afd7-6889-4811-97c9-135ee46cdabc"), "invsee")));
 
             try {
                 File playerDataFolder = MiniInventoryMenu.getPlayerDataFolderFor(target);
