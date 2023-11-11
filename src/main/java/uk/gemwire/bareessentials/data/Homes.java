@@ -46,9 +46,9 @@ public class Homes extends SavedData {
         return new Homes(homes);
     }
 
-
     public static Homes getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(Homes::load, Homes::new, "be_homes");
+        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(Homes::new, Homes::load, null),
+            "be_homes");
     }
 
     public BlockPos getUserHome(ServerPlayer p) {

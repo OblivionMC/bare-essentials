@@ -20,7 +20,7 @@ public class CmdHomes {
 
         Homes home = Homes.getOrCreate(cmd.getSource().getLevel());
 
-        if (player.getLevel().dimension() != ServerLevel.OVERWORLD) {
+        if (player.level().dimension() != ServerLevel.OVERWORLD) {
             player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                 "bareessentials.home.wrongdimension")));
             return 0;
@@ -49,14 +49,14 @@ public class CmdHomes {
             ServerPlayer player = cmd.getSource().getPlayer();
             Homes home = Homes.getOrCreate(cmd.getSource().getLevel());
 
-            if (player.getLevel().dimension() != ServerLevel.OVERWORLD) {
+            if (player.level().dimension() != ServerLevel.OVERWORLD) {
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.home.wrongdimension")));
                 return 0;
             }
 
             boolean overwrite = home.hasUserHome(player);
-            home.setUserHome(player, new BlockPos(player.getPosition(0)));
+            home.setUserHome(player, BlockPos.containing(player.getPosition(0)));
 
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                 "bareessentials.sethome" + (overwrite ? ".overwrite" : ""))));

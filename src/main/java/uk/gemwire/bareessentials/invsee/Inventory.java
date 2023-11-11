@@ -21,10 +21,10 @@ import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.PlayerDataStorage;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.network.NetworkHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import uk.gemwire.bareessentials.BareEssentials;
 
 import java.io.File;
@@ -35,11 +35,11 @@ import java.util.UUID;
 
 public class Inventory {
 
-    private static final Field pds = ObfuscationReflectionHelper.findField(MinecraftServer.class, "f_129745_");
+    private static final Field pds = ObfuscationReflectionHelper.findField(MinecraftServer.class, "playerDataStorage");
     static { pds.setAccessible(true); }
-    private static final Field pbn = ObfuscationReflectionHelper.findField(GameProfileCache.class, "f_10966_");
+    private static final Field pbn = ObfuscationReflectionHelper.findField(GameProfileCache.class, "profilesByName");
     static { pbn.setAccessible(true); }
-    private static final Field pDir = ObfuscationReflectionHelper.findField(PlayerDataStorage.class, "f_78427_");
+    private static final Field pDir = ObfuscationReflectionHelper.findField(PlayerDataStorage.class, "playerDir");
     static { pDir.setAccessible(true); }
 
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_USERS = (context, builder) -> {

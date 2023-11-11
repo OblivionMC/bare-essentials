@@ -34,6 +34,7 @@ public class CmdSpawn {
 
     //TODO Cool down timer?
     //TODO Check for lava or things that can cause harm
+    //TODO Unknown issue causing player to not move when "/spawn" is used
     public static int execute(CommandSourceStack player) {
         ServerLevel level = player.getServer().getLevel(Level.OVERWORLD);
         if (player.getPlayer() != null) {

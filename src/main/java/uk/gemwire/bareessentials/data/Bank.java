@@ -45,7 +45,8 @@ public class Bank extends SavedData {
     }
 
     public static Bank getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(Bank::load, Bank::new, "be_bank");
+        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(Bank::new, Bank::load, null),
+            "be_bank");
     }
 
     public long getUserBalance(ServerPlayer p) {
