@@ -1,6 +1,6 @@
 /*
  * MIT License
- * bareessentials - https://github.com/OblivionMC/bare-essentials
+ * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
  * Copyright (C) 2022-2023 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
