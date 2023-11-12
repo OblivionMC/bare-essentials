@@ -42,6 +42,9 @@ public class Homes extends SavedData {
     public Homes(Map<UUID, BlockPos> homes) { this.homes = homes; }
     public Homes() { homes = new HashMap<>(); }
 
+    private static final SavedData.Factory<Homes> homesFactory
+        = new SavedData.Factory<>(Homes::new, Homes::load, null);
+
     @Override
     public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
         CompoundTag tag = new CompoundTag();
@@ -70,8 +73,7 @@ public class Homes extends SavedData {
     }
 
     public static Homes getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(Homes::new, Homes::load, null),
-            "be_homes");
+        return level.getDataStorage().computeIfAbsent(homesFactory, "be_homes");
     }
 
     public BlockPos getUserHome(ServerPlayer p) {
