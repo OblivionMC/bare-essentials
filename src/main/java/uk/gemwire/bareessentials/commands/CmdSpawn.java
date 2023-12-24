@@ -46,8 +46,9 @@ public class CmdSpawn {
             if (cd.isCooldownExpired(player.getPlayer(), "spawn")) {
                 player.sendSystemMessage(Component.translatable(Language.getInstance()
                     .getOrDefault("bareessentials.spawn.tospawn")));
-                player.getPlayer().teleportTo(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(),
-                    level.getSharedSpawnPos().getZ() + 0.5);
+                // Random teleport = cancel if the destination is unsafe
+                player.getPlayer().randomTeleport(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(),
+                    level.getSharedSpawnPos().getZ() + 0.5, false);
                 cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + (5 * 20 * 60));
             } else {
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(player.getPlayer(), "spawn")/20));
