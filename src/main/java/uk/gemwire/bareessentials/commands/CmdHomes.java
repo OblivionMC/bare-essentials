@@ -79,10 +79,50 @@ public class CmdHomes {
             }
 
             boolean overwrite = home.hasUserHome(player);
+
+            if (overwrite) {
+                player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.home.confirmoverwrite")));
+                return 0;
+            }
+
             home.setUserHome(player, BlockPos.containing(player.getPosition(0)));
 
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.sethome" + (overwrite ? ".overwrite" : ""))));
+                "bareessentials.sethome")));
+
+            return Command.SINGLE_SUCCESS;
+        }
+    }
+
+    public class Overwrite {
+        public static int execute(CommandContext<CommandSourceStack> cmd) {
+
+            ServerPlayer player = cmd.getSource().getPlayer();
+            Homes home = Homes.getOrCreate(cmd.getSource().getLevel());
+
+            if (player.level().dimension() != ServerLevel.OVERWORLD) {
+                player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
+                    "bareessentials.home.wrongdimension")));
+                return 0;
+            }
+
+            home.setUserHome(player, BlockPos.containing(player.getPosition(0)));
+
+            cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
+                "bareessentials.sethome.overwrite")));
+
+            return Command.SINGLE_SUCCESS;
+        }
+    }
+
+    public class Remove {
+        public static int execute(CommandContext<CommandSourceStack> cmd) {
+            ServerPlayer player = cmd.getSource().getPlayer();
+            Homes home = Homes.getOrCreate(cmd.getSource().getLevel());
+
+            home.homes.remove(player.getUUID());
+
+            player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.home.deleted")));
 
             return Command.SINGLE_SUCCESS;
         }

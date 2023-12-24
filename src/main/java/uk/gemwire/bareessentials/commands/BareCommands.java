@@ -160,6 +160,12 @@ public class BareCommands {
         event.getDispatcher().register(
             literal("sethome")
                 .executes(CmdHomes.Set::execute)
+                .then(literal("overwrite")
+                    .executes(CmdHomes.Overwrite::execute)
+                )
+                .then(literal("none")
+                    .executes(CmdHomes.Remove::execute)
+                )
         );
 
         event.getDispatcher().register(

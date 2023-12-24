@@ -32,6 +32,8 @@
   "bareessentials.home.wrongdimension": "You can only use /home or /sethome in the Overworld!",
   "bareessentials.home.teleporting": "Teleporting you to your home..",
   "bareessentials.home.nohome": "You do not have a home to teleport to! Use /sethome somewhere safe.",
+  "bareessentials.home.confirmoverwrite": "You already have a home set. Use /sethome overwrite to confirm that you wish to replace this home with the new one.",
+  "bareessentials.home.deleted": "Your home has been deleted.",
 
   "bareessentials.cooldown.active": "You can't use that command for another %s seconds.",
 
