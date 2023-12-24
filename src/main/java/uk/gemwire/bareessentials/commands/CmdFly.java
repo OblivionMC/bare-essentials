@@ -55,7 +55,7 @@ public class CmdFly {
                 player.getAbilities().flying = true;
                 player.onUpdateAbilities();
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.fly.enabled"), Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))));
+                    "bareessentials.fly.enabled"), Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyoucapital"))));
 
                 if (cmd.getSource().getPlayer() != null && cmd.getSource().getPlayer() != player)
                     cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
@@ -67,7 +67,7 @@ public class CmdFly {
                 player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 400, 5));
 
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.fly.disabled"), Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))));
+                    "bareessentials.fly.disabled"), Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyoucapital"))));
 
                 if (cmd.getSource().getPlayer() != null && cmd.getSource().getPlayer() != player)
                     cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(

@@ -5,6 +5,7 @@
   "bareessentials.tpa.norequests": "You have no pending teleport requests!",
   "bareessentials.tpa.inprogress": "Teleport request accepted, teleporting to %s",
   "bareessentials.targetyou": "you",
+  "bareessentials.targetyoucapital": "You",
   "bareessentials.tpa.denied": "%s denied your teleport request.",
   "bareessentials.tpa.denysuccess": "Incoming teleport request denied.",
 
