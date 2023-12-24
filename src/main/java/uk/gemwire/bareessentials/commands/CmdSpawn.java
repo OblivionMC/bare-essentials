@@ -44,7 +44,7 @@ public class CmdSpawn {
 
             player.sendSystemMessage(Component.translatable(Language.getInstance()
                 .getOrDefault("bareessentials.spawn.tospawn")));
-                player.getPlayer().moveTo(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(),
+            player.getPlayer().teleportTo(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(),
                 level.getSharedSpawnPos().getZ() + 0.5);
         }
         return Command.SINGLE_SUCCESS;
