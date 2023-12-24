@@ -32,6 +32,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.gemwire.bareessentials.data.Cooldowns;
 import uk.gemwire.bareessentials.data.PendingTeleports;
 
 public class CmdTeleportRequest {
@@ -42,24 +43,32 @@ public class CmdTeleportRequest {
         var target = EntityArgument.getPlayer(pSource, "user");
         var sender = pSource.getSource().getPlayer();
 
-        logger.info("New Teleport Request; {} wants to teleport to {}.", sender.getDisplayName().getString(), target.getDisplayName().getString());
 
-        if (PendingTeleports.getRequestFrom(sender) != null) {
-            logger.info("Player {} already has a teleport request, not considering..", sender.getDisplayName().getString());
+        Cooldowns cd = Cooldowns.getOrCreate(sender.serverLevel());
+
+        if (!cd.isCooldownExpired(sender, "tpa")) {
+            sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
+        } else {
+            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + (15 * 20));
+
+            logger.info("New Teleport Request; {} wants to teleport to {}.", sender.getDisplayName().getString(), target.getDisplayName().getString());
+
+            if (PendingTeleports.getRequestFrom(sender) != null) {
+                logger.info("Player {} already has a teleport request, not considering..", sender.getDisplayName().getString());
+                sender.sendSystemMessage(Component.translatable(Language.getInstance()
+                    .getOrDefault("bareessentials.tpa.toomanyrequests")));
+                return 0;
+            }
+
+            logger.info("Request valid, saving..");
+            target.sendSystemMessage(Component.translatable(Language.getInstance()
+                .getOrDefault("bareessentials.tpa.incoming"), sender.getDisplayName().getString()));
+
+            PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(sender, target, true));
+
             sender.sendSystemMessage(Component.translatable(Language.getInstance()
-                .getOrDefault("bareessentials.tpa.toomanyrequests")));
-            return 0;
+                .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()));
         }
-
-        logger.info("Request valid, saving..");
-        target.sendSystemMessage(Component.translatable(Language.getInstance()
-            .getOrDefault("bareessentials.tpa.incoming"), sender.getDisplayName().getString()));
-
-        PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(sender, target, true));
-
-        sender.sendSystemMessage(Component.translatable(Language.getInstance()
-            .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()));
-
         return Command.SINGLE_SUCCESS;
     }
 

@@ -29,12 +29,11 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import uk.gemwire.bareessentials.data.Cooldowns;
 
 public class CmdSpawn {
 
-    //TODO Cool down timer?
     //TODO Check for lava or things that can cause harm
-    //TODO Unknown issue causing player to not move when "/spawn" is used
     public static int execute(CommandSourceStack player) {
         ServerLevel level = player.getServer().getLevel(Level.OVERWORLD);
         if (player.getPlayer() != null) {
@@ -42,10 +41,17 @@ public class CmdSpawn {
                 return 0;
             }
 
-            player.sendSystemMessage(Component.translatable(Language.getInstance()
-                .getOrDefault("bareessentials.spawn.tospawn")));
-            player.getPlayer().teleportTo(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(),
-                level.getSharedSpawnPos().getZ() + 0.5);
+            Cooldowns cd = Cooldowns.getOrCreate(level);
+
+            if (cd.isCooldownExpired(player.getPlayer(), "spawn")) {
+                player.sendSystemMessage(Component.translatable(Language.getInstance()
+                    .getOrDefault("bareessentials.spawn.tospawn")));
+                player.getPlayer().teleportTo(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(),
+                    level.getSharedSpawnPos().getZ() + 0.5);
+                cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + (5 * 20 * 60));
+            } else {
+                player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(player.getPlayer(), "spawn")/20));
+            }
         }
         return Command.SINGLE_SUCCESS;
     }

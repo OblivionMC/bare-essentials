@@ -31,6 +31,8 @@
   "bareessentials.home.teleporting": "Teleporting you to your home..",
   "bareessentials.home.nohome": "You do not have a home to teleport to! Use /sethome somewhere safe.",
 
+  "bareessentials.cooldown.active": "You can't use that command for another %s seconds.",
+
   "bareessentials.sethome": "Setting your home!",
   "bareessentials.sethome.overwrite": "Setting your home! (Overwriting previous home)"
 }
