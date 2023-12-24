@@ -1,6 +1,6 @@
 /*
  * MIT License
- * bareessentials - https://github.com/OblivionMC/bare-essentials
+ * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
  * Copyright (C) 2022-2023 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,7 +34,7 @@ public class CmdSetWorldSpawn {
     public static int execute(CommandSourceStack pSource, BlockPos pPos, float pAngle) {
         pSource.getLevel().setDefaultSpawnPos(pPos, pAngle);
         pSource.getServer().getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS).set(0, pSource.getServer());
-        pSource.sendSuccess(Component.translatable(Language.getInstance()
+        pSource.sendSuccess(() -> Component.translatable(Language.getInstance()
                 .getOrDefault("bareessentials.spawn.setworldspawn.success"),
             pPos.getX(), pPos.getY(), pPos.getZ(), pAngle), true);
         return Command.SINGLE_SUCCESS;

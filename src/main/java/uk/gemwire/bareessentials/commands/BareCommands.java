@@ -1,6 +1,6 @@
 /*
  * MIT License
- * bareessentials - https://github.com/OblivionMC/bare-essentials
+ * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
  * Copyright (C) 2022-2023 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +28,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import uk.gemwire.bareessentials.invsee.Inventory;
 
 import static net.minecraft.commands.Commands.LEVEL_ADMINS;
@@ -41,7 +41,7 @@ public class BareCommands {
             literal("setspawn")
                 .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
                 .executes((s) -> CmdSetWorldSpawn.execute(s.getSource(),
-                    new BlockPos(s.getSource().getPosition()), 0.0F))
+                    BlockPos.containing(s.getSource().getPosition()), 0.0F))
         );
 
         event.getDispatcher().register(

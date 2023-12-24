@@ -1,6 +1,6 @@
 /*
  * MIT License
- * bareessentials - https://github.com/OblivionMC/bare-essentials
+ * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
  * Copyright (C) 2022-2023 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,13 +25,13 @@ package uk.gemwire.bareessentials;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gemwire.bareessentials.commands.BareCommands;
@@ -47,7 +47,7 @@ public class BareEssentials {
 
 
     public BareEssentials() {
-        IEventBus forge = MinecraftForge.EVENT_BUS;
+        IEventBus forge = NeoForge.EVENT_BUS;
         forge.addListener(BareCommands::registerCommands);
     }
 
@@ -64,7 +64,7 @@ public class BareEssentials {
 
         @SubscribeEvent
         public static void login(PlayerEvent.PlayerLoggedInEvent e) {
-            if (e.getEntity().getLevel().isClientSide) return;
+            if (e.getEntity().level().isClientSide) return;
             // Ensure the new player has a bank account so they receive income while offline.
             Bank accts = Bank.getOrCreate(e.getEntity().getServer().overworld());
             accts.getUserBalance((ServerPlayer) e.getEntity());
