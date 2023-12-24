@@ -91,7 +91,9 @@ public class CmdTeleportRequest {
         target.sendSystemMessage(Component.translatable(Language.getInstance() .getOrDefault("bareessentials.tpa.inprogress"),
             Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))
         ));
-        request.sender().randomTeleport(target.getX(), target.getY(), target.getZ(), false);
+
+        if (!request.sender().randomTeleport(target.getX(), target.getY(), target.getZ(), false))
+            request.sender().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
 
         PendingTeleports.removeRequestFrom(request.sender());
 
