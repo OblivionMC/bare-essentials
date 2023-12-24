@@ -23,14 +23,17 @@
  */
 package uk.gemwire.bareessentials.data;
 
+import net.minecraft.locale.Language;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.LongTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 import uk.gemwire.bareessentials.BareEssentials;
+import uk.gemwire.bareessentials.commands.CmdBalance;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,6 +86,25 @@ public class Bank extends SavedData {
         }
 
         return 0;
+    }
+
+    public boolean playerHasEnough(ServerPlayer p, long amount) {
+        if (amount == 0) return true;
+
+        if (!hasUser(p) || getUserBalance(p) < amount) {
+            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.serverLevel()), amount));
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean chargePlayer(ServerPlayer p, long amount) {
+        if (amount == 0) return true;
+        if (!playerHasEnough(p, amount)) return false;
+
+        setUserBalance(p, getUserBalance(p) - amount);
+        return true;
     }
 
     public void setUserBalance(ServerPlayer p, long b) {

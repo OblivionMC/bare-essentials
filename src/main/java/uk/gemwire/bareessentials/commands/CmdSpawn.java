@@ -29,6 +29,8 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import uk.gemwire.bareessentials.BareEssentials;
+import uk.gemwire.bareessentials.data.Bank;
 import uk.gemwire.bareessentials.data.Cooldowns;
 
 public class CmdSpawn {
@@ -42,15 +44,18 @@ public class CmdSpawn {
             }
 
             Cooldowns cd = Cooldowns.getOrCreate(level);
+            Bank bk = Bank.getOrCreate(level);
 
             if (cd.isCooldownExpired(player.getPlayer(), "spawn")) {
+                if (!bk.chargePlayer(player.getPlayer(), level.getGameRules().getInt(BareEssentials.SPAWN_COST)))
+                    return 0;
                 player.sendSystemMessage(Component.translatable(Language.getInstance()
                     .getOrDefault("bareessentials.spawn.tospawn")));
                 // Random teleport = cancel if the destination is unsafe
                 if (!player.getPlayer().randomTeleport(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(), level.getSharedSpawnPos().getZ() + 0.5, false))
                     player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
 
-                cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + (5 * 20 * 60));
+                cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + player.getLevel().getGameRules().getInt(BareEssentials.SPAWN_COOLDOWN));
             } else {
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(player.getPlayer(), "spawn")/20));
             }

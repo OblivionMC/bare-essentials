@@ -1,10 +1,12 @@
 package uk.gemwire.bareessentials.data;
 
+import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
+import uk.gemwire.bareessentials.BareEssentials;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +75,7 @@ public class Cooldowns extends SavedData {
     }
 
     public boolean hasPendingCooldown(ServerPlayer player) {
+        if (player.hasPermissions(Commands.LEVEL_ADMINS) && player.level().getGameRules().getBoolean(BareEssentials.OP_OVERRIDES_COOLDOWN)) return false;
         return cooldowns.containsKey(player.getUUID());
     }
 

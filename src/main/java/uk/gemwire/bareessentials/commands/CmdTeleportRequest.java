@@ -32,6 +32,8 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.gemwire.bareessentials.BareEssentials;
+import uk.gemwire.bareessentials.data.Bank;
 import uk.gemwire.bareessentials.data.Cooldowns;
 import uk.gemwire.bareessentials.data.PendingTeleports;
 
@@ -45,11 +47,14 @@ public class CmdTeleportRequest {
 
 
         Cooldowns cd = Cooldowns.getOrCreate(sender.serverLevel());
+        Bank bk = Bank.getOrCreate(sender.serverLevel());
 
         if (!cd.isCooldownExpired(sender, "tpa")) {
             sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
         } else {
-            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + (15 * 20));
+            if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
+                return 0;
+            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().getInt(BareEssentials.TPA_COOLDOWN));
 
             logger.info("New Teleport Request; {} wants to teleport to {}.", sender.getDisplayName().getString(), target.getDisplayName().getString());
 
@@ -77,6 +82,7 @@ public class CmdTeleportRequest {
         logger.info("Player {} is accepting a pending request..", target.getDisplayName().getString());
 
         var request = PendingTeleports.getRequestFor(target);
+        Cooldowns cd = Cooldowns.getOrCreate(target.serverLevel());
 
         if (request == null) {
             logger.info("Player {} has no pending requests to accept.", target.getDisplayName().getString());
@@ -92,8 +98,10 @@ public class CmdTeleportRequest {
             Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))
         ));
 
-        if (!request.sender().randomTeleport(target.getX(), target.getY(), target.getZ(), false))
+        if (!request.sender().randomTeleport(target.getX(), target.getY(), target.getZ(), false)) {
             request.sender().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
+            cd.setCooldownFor(target, "tpa", target.serverLevel().getGameTime() - 10);
+        }
 
         PendingTeleports.removeRequestFrom(request.sender());
 

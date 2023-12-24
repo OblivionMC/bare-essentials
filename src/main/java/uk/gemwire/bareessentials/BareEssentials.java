@@ -41,8 +41,17 @@ import uk.gemwire.bareessentials.data.Homes;
 @Mod("bareessentials")
 public class BareEssentials {
 
-    public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
-    public static GameRules.Key<GameRules.IntegerValue> DAILY_INCOME = GameRules.register("bankDailyIncome", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
+    public static GameRules.Key<GameRules.IntegerValue> CURRENCY_SYMBOL = GameRules.register("be.currencySymbol", GameRules.Category.CHAT, GameRules.IntegerValue.create(0));
+    public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("be.bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
+    public static GameRules.Key<GameRules.IntegerValue> DAILY_INCOME = GameRules.register("be.bankDailyIncome", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
+    public static GameRules.Key<GameRules.IntegerValue> MAX_HOMES = GameRules.register("be.maxHomes", GameRules.Category.PLAYER, GameRules.IntegerValue.create(1));
+    public static GameRules.Key<GameRules.IntegerValue> TPA_COST = GameRules.register("be.tpaCost", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
+    public static GameRules.Key<GameRules.IntegerValue> SPAWN_COST = GameRules.register("be.spawnCost", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
+    public static GameRules.Key<GameRules.IntegerValue> TPA_COOLDOWN = GameRules.register("be.tpaCooldown", GameRules.Category.PLAYER, GameRules.IntegerValue.create(15 * 20));
+    public static GameRules.Key<GameRules.IntegerValue> SPAWN_COOLDOWN = GameRules.register("be.spawnCooldown", GameRules.Category.PLAYER, GameRules.IntegerValue.create(5 * 20 * 60));
+
+    public static GameRules.Key<GameRules.BooleanValue> OP_OVERRIDES_COOLDOWN = GameRules.register("be.opOverridesCooldowns", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
+
     public static Logger LOGGER = LogManager.getLogger(BareEssentials.class);
 
 
