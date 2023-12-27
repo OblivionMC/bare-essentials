@@ -50,9 +50,6 @@ public class Bank extends SavedData {
     public Bank(Map<UUID, Long> accts) { accounts = accts; }
     public Bank() { accounts = new HashMap<>(); }
 
-    private static final SavedData.Factory<Bank> bankFactory
-        = new SavedData.Factory<>(Bank::new, Bank::load, null);
-
     @Override
     public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
         CompoundTag tag = new CompoundTag();
@@ -74,7 +71,7 @@ public class Bank extends SavedData {
     }
 
     public static Bank getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(bankFactory, "be_bank");
+        return level.getDataStorage().computeIfAbsent(Bank::load, Bank::new, "be_bank");
     }
 
     public long getUserBalance(ServerPlayer p) {

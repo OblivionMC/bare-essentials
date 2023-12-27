@@ -28,7 +28,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import uk.gemwire.bareessentials.invsee.Inventory;
 
 import static net.minecraft.commands.Commands.LEVEL_ADMINS;

@@ -44,9 +44,6 @@ public class Cooldowns extends SavedData {
     public Cooldowns(Map<UUID, Map<String, Long>> cooldowns) { this.cooldowns = cooldowns; }
     public Cooldowns() { cooldowns = new HashMap<>(); }
 
-    private static final SavedData.Factory<Cooldowns> cooldownsFactory
-        = new SavedData.Factory<>(Cooldowns::new, Cooldowns::load, null);
-
     @Override
     public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
         // Do not save or load cooldowns, they only exist temporarily.
@@ -59,13 +56,12 @@ public class Cooldowns extends SavedData {
     }
 
     public static Cooldowns getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(cooldownsFactory, "be_cooldowns");
+        return level.getDataStorage().computeIfAbsent(Cooldowns::load, Cooldowns::new, "be_cooldowns");
     }
 
     public long getCooldownFor(ServerPlayer p, String feature) {
         return cooldowns.containsKey(p.getUUID()) ?
-                    cooldowns.get(p.getUUID()).getOrDefault(feature, 0L)
-              : 0L;
+                    cooldowns.get(p.getUUID()).getOrDefault(feature, 0L) : 0L;
     }
 
     public long getRemainingTimeFor(ServerPlayer p, String feature) {

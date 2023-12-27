@@ -12,9 +12,10 @@
 </p>
 
 ## Commands list:  
-- ``/tpahere`` Send another player a request to teleport them to you, they can either ``/tpa accept`` or ``/tpa deny`` the request.  
-- ``/setworldspawn`` Set the world spawn to an exact position in the world quickly.  
-- ``/spawn`` Teleport to the world spawn.  
+- ``/tpa <user>`` Send another player a request to teleport to them. they can either ``/tpa accept`` or ``/tpa deny`` the request.  
+- ``/tpahere <user>`` Send another player a request to teleport them to you, they can either ``/tpa accept`` or ``/tpa deny`` the request.  
+- ``/setworldspawn`` Set the world spawn to an exact position in the world quickly.
+- ``/spawn`` Teleport to the world spawn.
 - ``/sethome [none] [override]`` Set or remove your home location in the world.  
 - ``/home`` Teleport to your home.  
 - ``/heal [user]`` Heal yourself or another player to full health (Not hunger)  

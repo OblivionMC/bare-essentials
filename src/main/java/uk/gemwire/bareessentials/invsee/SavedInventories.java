@@ -73,7 +73,7 @@ public class SavedInventories extends SavedData {
 
 
     public static SavedInventories getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(SavedInventories::new,
-            SavedInventories::load, null), "be_invs");
+        return level.getDataStorage().computeIfAbsent(SavedInventories::load,
+            SavedInventories::new, "be_invs");
     }
 }

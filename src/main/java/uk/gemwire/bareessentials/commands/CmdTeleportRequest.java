@@ -45,12 +45,11 @@ public class CmdTeleportRequest {
         var target = EntityArgument.getPlayer(pSource, "user");
         var sender = pSource.getSource().getPlayer();
 
-
         Cooldowns cd = Cooldowns.getOrCreate(sender.serverLevel());
         Bank bk = Bank.getOrCreate(sender.serverLevel());
 
         if (!cd.isCooldownExpired(sender, "tpa")) {
-            sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
+            sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa") / 20));
         } else {
             if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
                 return 0;
@@ -81,12 +80,11 @@ public class CmdTeleportRequest {
         var target = EntityArgument.getPlayer(pSource, "user");
         var sender = pSource.getSource().getPlayer();
 
-
         Cooldowns cd = Cooldowns.getOrCreate(sender.serverLevel());
         Bank bk = Bank.getOrCreate(sender.serverLevel());
 
         if (!cd.isCooldownExpired(sender, "tpa")) {
-            sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
+            sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa") / 20));
         } else {
             if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
                 return 0;
@@ -131,7 +129,7 @@ public class CmdTeleportRequest {
             logger.info("Request valid, teleporting {} to {}.", request.receiver().getDisplayName().getString(), request.sender().getDisplayName().getString());
             request.receiver().sendSystemMessage(Component.translatable(Language.getInstance()
                 .getOrDefault("bareessentials.tpa.inprogress"), request.sender().getDisplayName().getString()));
-            request.sender().sendSystemMessage(Component.translatable(Language.getInstance() .getOrDefault("bareessentials.tpa.inprogress"),
+            request.sender().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.tpa.inprogress"),
                 Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))
             ));
 
@@ -144,7 +142,7 @@ public class CmdTeleportRequest {
             logger.info("Request valid, teleporting {} to {}.", request.sender().getDisplayName().getString(), request.receiver().getDisplayName().getString());
             request.sender().sendSystemMessage(Component.translatable(Language.getInstance()
                 .getOrDefault("bareessentials.tpa.inprogress"), request.receiver().getDisplayName().getString()));
-            target.sendSystemMessage(Component.translatable(Language.getInstance() .getOrDefault("bareessentials.tpa.inprogress"),
+            target.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.tpa.inprogress"),
                 Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyou"))
             ));
 
