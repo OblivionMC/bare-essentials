@@ -65,7 +65,7 @@ public class Cooldowns extends SavedData {
     }
 
     public long getRemainingTimeFor(ServerPlayer p, String feature) {
-        return cooldowns.get(p.getUUID()).get(feature) - p.level().getGameTime();
+        return cooldowns.get(p.getUUID()).get(feature) - p.level.getGameTime();
     }
 
     public void setCooldownFor(ServerPlayer p, String feature, long gametime) {
@@ -94,7 +94,7 @@ public class Cooldowns extends SavedData {
     }
 
     public boolean hasPendingCooldown(ServerPlayer player) {
-        if (player.hasPermissions(Commands.LEVEL_ADMINS) && player.level().getGameRules().getBoolean(BareEssentials.OP_OVERRIDES_COOLDOWN)) return false;
+        if (player.hasPermissions(Commands.LEVEL_ADMINS) && player.level.getGameRules().getBoolean(BareEssentials.OP_OVERRIDES_COOLDOWN)) return false;
         return cooldowns.containsKey(player.getUUID());
     }
 
@@ -104,7 +104,7 @@ public class Cooldowns extends SavedData {
 
     public boolean isCooldownExpired(ServerPlayer player, String feature) {
         if (!hasPendingCooldown(player) || !hasPendingCooldownFor(player, feature)) return true;
-        return getCooldownFor(player, feature) < player.level().getGameTime();
+        return getCooldownFor(player, feature) < player.level.getGameTime();
     }
 
 }

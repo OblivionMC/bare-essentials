@@ -73,7 +73,7 @@ public class BareEssentials {
 
         @SubscribeEvent
         public static void login(PlayerEvent.PlayerLoggedInEvent e) {
-            if (e.getEntity().level().isClientSide) return;
+            if (e.getEntity().level.isClientSide) return;
             // Ensure the new player has a bank account so they receive income while offline.
             Bank accts = Bank.getOrCreate(e.getEntity().getServer().overworld());
             accts.getUserBalance((ServerPlayer) e.getEntity());

@@ -64,7 +64,7 @@ public class CmdBalance {
 
         if (accts.hasUser(player)) {
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.balance"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                "bareessentials.balance"), player.getDisplayName().getString(), getCurrencySymbol(player.getLevel()), accts.getUserBalance(player)));
         } else {
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                 "bareessentials.balance.unable"), player.getDisplayName().getString()));
@@ -92,7 +92,7 @@ public class CmdBalance {
                 accts.setUserBalance(player, accts.getUserBalance(player) + (long) amt);
 
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.give"), getCurrencySymbol(player.serverLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                    "bareessentials.balance.give"), getCurrencySymbol(player.getLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.getLevel()), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.balance.unable"), player.getDisplayName().getString()));
@@ -121,7 +121,7 @@ public class CmdBalance {
                 accts.setUserBalance(player, amt);
 
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.set"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                    "bareessentials.balance.set"), player.getDisplayName().getString(), getCurrencySymbol(player.getLevel()), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.balance.unable"), player.getDisplayName().getString()));
@@ -151,7 +151,7 @@ public class CmdBalance {
                 accts.setUserBalance(player, balance - (balance - (long) amt <= 0 ? amt = (int) balance : (long) amt));
                 // Don't subtract more than they have; cap it at limiting to their balance.
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.remove"), getCurrencySymbol(player.serverLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                    "bareessentials.balance.remove"), getCurrencySymbol(player.getLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.getLevel()), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.balance.unable"), player.getDisplayName().getString()));

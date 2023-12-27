@@ -89,7 +89,7 @@ public class Bank extends SavedData {
         if (amount == 0) return true;
 
         if (!hasUser(p) || getUserBalance(p) < amount) {
-            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.serverLevel()), amount));
+            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.getLevel()), amount));
             return false;
         }
 
