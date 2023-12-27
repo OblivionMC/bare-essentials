@@ -58,6 +58,13 @@ public class BareCommands {
         );
 
         event.getDispatcher().register(
+            literal("tpahere")
+                .then(Commands.argument("user", EntityArgument.player())
+                    .executes(CmdTeleportRequest::tpahere)
+                )
+        );
+
+        event.getDispatcher().register(
             literal("spawn")
                 .executes((s) -> CmdSpawn.execute(s.getSource()))
         );
