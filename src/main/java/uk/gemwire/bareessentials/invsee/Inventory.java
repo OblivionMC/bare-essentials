@@ -56,6 +56,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
 
+//TODO Apparently capabilities changed, this is for Curle to check in on when time permits.
 public class Inventory {
 
     private static final Field pds = ObfuscationReflectionHelper.findField(MinecraftServer.class, "playerDataStorage");
