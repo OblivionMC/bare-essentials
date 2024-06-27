@@ -24,6 +24,7 @@
 package uk.gemwire.bareessentials.data;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,14 +40,19 @@ public class Homes extends SavedData {
     // The list of all Homes currently loaded
     public Map<UUID, BlockPos> homes;
 
-    public Homes(Map<UUID, BlockPos> homes) { this.homes = homes; }
-    public Homes() { homes = new HashMap<>(); }
+    public Homes(Map<UUID, BlockPos> homes) {
+        this.homes = homes;
+    }
+
+    public Homes() {
+        homes = new HashMap<>();
+    }
 
     private static final SavedData.Factory<Homes> homesFactory
         = new SavedData.Factory<>(Homes::new, Homes::load, null);
 
     @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
+    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag, final @NotNull HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         for (var acc : homes.entrySet()) {
             CompoundTag pos = new CompoundTag();

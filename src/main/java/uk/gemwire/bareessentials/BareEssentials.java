@@ -27,11 +27,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gemwire.bareessentials.commands.BareCommands;
@@ -60,7 +61,7 @@ public class BareEssentials {
         forge.addListener(BareCommands::registerCommands);
     }
 
-    @Mod.EventBusSubscriber(modid="bareessentials", bus= Mod.EventBusSubscriber.Bus.FORGE)
+    @EventBusSubscriber(modid = "bareessentials", bus = EventBusSubscriber.Bus.MOD)
     static class Events {
         @SubscribeEvent
         public static void started(ServerStartedEvent e) {
@@ -80,7 +81,7 @@ public class BareEssentials {
         }
 
         @SubscribeEvent
-        public static void tick(TickEvent.ServerTickEvent e) {
+        public static void tick(ServerTickEvent e) {
             if (e.getServer().overworld().getDayTime() == 0)
                 Bank.getOrCreate(e.getServer().overworld()).updateBalances(e.getServer());
         }

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PendingTeleports {
+
     private static Logger logger = LogManager.getLogger();
 
     public record TeleportRequest(ServerPlayer sender, ServerPlayer receiver, boolean pending, boolean tpahere) {

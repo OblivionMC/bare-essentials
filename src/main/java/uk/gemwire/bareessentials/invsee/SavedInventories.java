@@ -23,6 +23,7 @@
  */
 package uk.gemwire.bareessentials.invsee;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
@@ -40,11 +41,16 @@ public class SavedInventories extends SavedData {
     // The list of all Inventories currently loaded
     public Map<UUID, List<CompoundTag>> invs;
 
-    public SavedInventories(Map<UUID, List<CompoundTag>> invs) { this.invs = invs; }
-    public SavedInventories() { invs = new HashMap<>(); }
+    public SavedInventories(Map<UUID, List<CompoundTag>> invs) {
+        this.invs = invs;
+    }
+
+    public SavedInventories() {
+        invs = new HashMap<>();
+    }
 
     @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
+    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag, final @NotNull HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         for (var acc : invs.entrySet()) {
             ListTag invs = new ListTag();

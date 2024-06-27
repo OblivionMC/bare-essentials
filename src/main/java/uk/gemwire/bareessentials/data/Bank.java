@@ -23,6 +23,7 @@
  */
 package uk.gemwire.bareessentials.data;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.locale.Language;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.LongTag;
@@ -47,14 +48,19 @@ public class Bank extends SavedData {
     // The list of all Accounts currently loaded
     public Map<UUID, Long> accounts;
 
-    public Bank(Map<UUID, Long> accts) { accounts = accts; }
-    public Bank() { accounts = new HashMap<>(); }
+    public Bank(Map<UUID, Long> accts) {
+        accounts = accts;
+    }
+
+    public Bank() {
+        accounts = new HashMap<>();
+    }
 
     private static final SavedData.Factory<Bank> bankFactory
         = new SavedData.Factory<>(Bank::new, Bank::load, null);
 
     @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
+    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag, final @NotNull HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         for (var acc : accounts.entrySet()) {
             tag.putLong(acc.getKey().toString(), acc.getValue());

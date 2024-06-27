@@ -24,6 +24,7 @@
 package uk.gemwire.bareessentials.data;
 
 import net.minecraft.commands.Commands;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,14 +42,19 @@ public class Cooldowns extends SavedData {
     // User -> { Feature -> Game Time }
     public Map<UUID, Map<String, Long>> cooldowns;
 
-    public Cooldowns(Map<UUID, Map<String, Long>> cooldowns) { this.cooldowns = cooldowns; }
-    public Cooldowns() { cooldowns = new HashMap<>(); }
+    public Cooldowns(Map<UUID, Map<String, Long>> cooldowns) {
+        this.cooldowns = cooldowns;
+    }
+
+    public Cooldowns() {
+        cooldowns = new HashMap<>();
+    }
 
     private static final SavedData.Factory<Cooldowns> cooldownsFactory
         = new SavedData.Factory<>(Cooldowns::new, Cooldowns::load, null);
 
     @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
+    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag, final @NotNull HolderLookup.Provider provider) {
         // Do not save or load cooldowns, they only exist temporarily.
         return new CompoundTag();
     }
