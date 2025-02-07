@@ -1,7 +1,7 @@
 /*
  * MIT License
  * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
- * Copyright (C) 2022-2023 Curle
+ * Copyright (C) 2022-2025 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,10 +35,9 @@ import uk.gemwire.bareessentials.data.Cooldowns;
 
 public class CmdSpawn {
 
-    //TODO Check for lava or things that can cause harm
     public static int execute(CommandSourceStack player) {
-        ServerLevel level = player.getServer().getLevel(Level.OVERWORLD);
         if (player.getPlayer() != null) {
+            ServerLevel level = player.getServer().getLevel(Level.OVERWORLD);
             if (level == null) {
                 return 0;
             }
@@ -47,7 +46,7 @@ public class CmdSpawn {
             Bank bk = Bank.getOrCreate(level);
 
             if (cd.isCooldownExpired(player.getPlayer(), "spawn")) {
-                if (!bk.chargePlayer(player.getPlayer(), level.getGameRules().getInt(BareEssentials.SPAWN_COST)))
+                if (!bk.playerHasEnough(player.getPlayer(), level.getGameRules().getInt(BareEssentials.SPAWN_COST)))
                     return 0;
                 player.sendSystemMessage(Component.translatable(Language.getInstance()
                     .getOrDefault("bareessentials.spawn.tospawn")));
@@ -55,6 +54,7 @@ public class CmdSpawn {
                 if (!player.getPlayer().randomTeleport(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(), level.getSharedSpawnPos().getZ() + 0.5, false))
                     player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
 
+                bk.chargePlayer(player.getPlayer(), level.getGameRules().getInt(BareEssentials.SPAWN_COST));
                 cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + player.getLevel().getGameRules().getInt(BareEssentials.SPAWN_COOLDOWN));
             } else {
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(player.getPlayer(), "spawn")/20));

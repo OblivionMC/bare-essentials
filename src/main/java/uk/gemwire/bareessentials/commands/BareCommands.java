@@ -1,7 +1,7 @@
 /*
  * MIT License
  * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
- * Copyright (C) 2022-2023 Curle
+ * Copyright (C) 2022-2025 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,54 @@ package uk.gemwire.bareessentials.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
+import net.neoforged.neoforge.server.permission.nodes.PermissionDynamicContext;
+import net.neoforged.neoforge.server.permission.nodes.PermissionDynamicContextKey;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import uk.gemwire.bareessentials.invsee.Inventory;
+
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static net.minecraft.commands.Commands.LEVEL_ADMINS;
 import static net.minecraft.commands.Commands.literal;
 
 public class BareCommands {
 
+    private static Predicate<CommandSourceStack> hasPermissionNode(PermissionNode<Boolean>... node) {
+        return (CommandSourceStack s) -> !s.isPlayer() || Arrays.stream(node).allMatch(p -> PermissionAPI.getPermission(s.getPlayer(), p, null));
+    }
+
     public static void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
-            literal("setspawn")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
-                .executes((s) -> CmdSetWorldSpawn.execute(s.getSource(),
-                    BlockPos.containing(s.getSource().getPosition()), 0.0F))
+            literal("spawn")
+                .then(Commands.literal("set")
+                    .requires(hasPermissionNode(PermissionNodes.SPAWN_SET))
+                    .executes((s) -> CmdSetWorldSpawn.execute(s.getSource(),
+                        BlockPos.containing(s.getSource().getPosition()), 0.0F))
+                )
+                .then(Commands.literal("find")
+                    .requires(hasPermissionNode(PermissionNodes.SPAWN_FIND))
+                    .executes(s -> CmdSpawnFind.execute(s.getSource()))
+                )
+                .requires(hasPermissionNode(PermissionNodes.SPAWN_GOTO))
+                .executes((s) -> CmdSpawn.execute(s.getSource()))
         );
 
         event.getDispatcher().register(
             literal("tpa")
                 .then(Commands.argument("user", EntityArgument.player())
+                    .requires(hasPermissionNode(PermissionNodes.TPA))
                     .executes(CmdTeleportRequest::tpa)
                 )
                 .then(Commands.literal("accept")
+                    .requires(hasPermissionNode(PermissionNodes.TPA_ACCEPT))
                     .executes(CmdTeleportRequest::accept)
                 )
                 .then(Commands.literal("deny")
@@ -64,10 +87,6 @@ public class BareCommands {
                 )
         );
 
-        event.getDispatcher().register(
-            literal("spawn")
-                .executes((s) -> CmdSpawn.execute(s.getSource()))
-        );
 
         event.getDispatcher().register(
             literal("fly")

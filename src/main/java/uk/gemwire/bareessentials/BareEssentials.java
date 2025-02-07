@@ -1,7 +1,7 @@
 /*
  * MIT License
  * Bare Essentials - https://github.com/OblivionMC/bare-essentials/
- * Copyright (C) 2022-2023 Curle
+ * Copyright (C) 2022-2025 Curle
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package uk.gemwire.bareessentials;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.neoforged.bus.api.IEventBus;
@@ -33,14 +34,77 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gemwire.bareessentials.commands.BareCommands;
+import uk.gemwire.bareessentials.commands.PermissionNodes;
 import uk.gemwire.bareessentials.data.Bank;
 import uk.gemwire.bareessentials.data.Homes;
 
+
+/**
+ * Provides the following commands
+ *
+ * For OP:
+ *  setspawn
+ *  editsign set/clear
+ *  repair
+ *  tp random/all/offline/toggle/here
+ *  bank set/value set
+ *  speed
+ *  move top/up/down/bottom/forward
+ *  editbook title/author/name/text
+ *  more
+ *  sleep
+ *  warp set/remove
+ *  break
+ *  broadcast
+ *  lightning
+ *  invsee ender
+ *  enchant
+ *  fly
+ *  vanish
+ *  pos
+ *  god
+ *  infinite
+ *  item lore/name
+ *  burn
+ *  xp get/set/give
+ *  feed
+ *  heal
+ *  kittycannon
+ *  beezooka
+ *  tempban
+ *  tempbanip
+ *  unbanip
+ *
+ *
+ * For players:
+ *  bank get/value get/top/pay get/offer/toggle/accept/deny
+ *  nick set/get
+ *  whois
+ *  condense
+ *  mail read/clear/send/sendtemp
+ *  home set/get/goto
+ *  warp list/goto
+ *  near
+ *  tp back/deny/accept auto/ask cancel
+ *  seen
+ *  pos
+ *  ping
+ *  afk
+ *  list
+ *  r/reply
+ *  playtime
+ *  spawn
+ */
+
 @Mod("bareessentials")
 public class BareEssentials {
+
+    // Bank is enabled by default, but we'll set it off if we recognize an economy mod loading alongside us *cough* OblivionEconomy
+    public static GameRules.Key<GameRules.BooleanValue> BANK_ENABLED = GameRules.register("be.bankEnabled", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
 
     public static GameRules.Key<GameRules.IntegerValue> CURRENCY_SYMBOL = GameRules.register("be.currencySymbol", GameRules.Category.CHAT, GameRules.IntegerValue.create(0));
     public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("be.bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
@@ -59,6 +123,7 @@ public class BareEssentials {
     public BareEssentials() {
         IEventBus forge = NeoForge.EVENT_BUS;
         forge.addListener(BareCommands::registerCommands);
+        forge.addListener(PermissionNodes::registerPermissions);
     }
 
     @EventBusSubscriber(modid = "bareessentials", bus = EventBusSubscriber.Bus.MOD)
@@ -68,6 +133,7 @@ public class BareEssentials {
             // Load bank details into the static map.
             Bank accts = Bank.getOrCreate(e.getServer().overworld());
             LOGGER.info("Loaded " + accts.accounts.size() + " bank accounts.");
+
             Homes homes = Homes.getOrCreate(e.getServer().overworld());
             LOGGER.info("Loaded " + homes.homes.size() + " user homes.");
         }
