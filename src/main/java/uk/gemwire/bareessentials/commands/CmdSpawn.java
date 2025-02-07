@@ -25,9 +25,11 @@ package uk.gemwire.bareessentials.commands;
 
 import com.mojang.brigadier.Command;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.data.Bank;
@@ -35,7 +37,7 @@ import uk.gemwire.bareessentials.data.Cooldowns;
 
 public class CmdSpawn {
 
-    public static int execute(CommandSourceStack player) {
+    public static int executeGoto(CommandSourceStack player) {
         if (player.getPlayer() != null) {
             ServerLevel level = player.getServer().getLevel(Level.OVERWORLD);
             if (level == null) {
@@ -60,6 +62,20 @@ public class CmdSpawn {
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(player.getPlayer(), "spawn")/20));
             }
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    public static int executeSet(CommandSourceStack pSource, BlockPos pPos, float pAngle) {
+        pSource.getLevel().setDefaultSpawnPos(pPos, pAngle);
+        pSource.getServer().getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS).set(0, pSource.getServer());
+        pSource.sendSuccess(() -> Component.translatable(Language.getInstance()
+                .getOrDefault("bareessentials.spawn.set.success"),
+            pPos.getX(), pPos.getY(), pPos.getZ(), pAngle), true);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    public static int executeFind(CommandSourceStack player) {
+        player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.spawn.position"), player.getPlayer().getX(), player.getPlayer().getY(), player.getPlayer().getZ()));
         return Command.SINGLE_SUCCESS;
     }
 }

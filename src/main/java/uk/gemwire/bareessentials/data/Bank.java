@@ -34,7 +34,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 import uk.gemwire.bareessentials.BareEssentials;
-import uk.gemwire.bareessentials.commands.CmdBalance;
+import uk.gemwire.bareessentials.commands.CmdBank;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -98,7 +98,7 @@ public class Bank extends SavedData {
         if (amount == 0) return true;
 
         if (!hasUser(p) || getUserBalance(p) < amount) {
-            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.serverLevel()), amount));
+            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBank.getCurrencySymbol(p.serverLevel()), amount));
             return false;
         }
 

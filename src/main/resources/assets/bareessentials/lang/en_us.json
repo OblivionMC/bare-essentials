@@ -1,19 +1,25 @@
 {
   "bareessentials.tpa.toomanyrequests": "You cannot send more than one teleport request at a time!",
-  "bareessentials.tpa.incoming": "%s wants to teleport to you.",
-  "bareessentials.tpahere.incoming": "%s wants you to teleport to their location.",
+  "bareessentials.tpa.incoming": "%s wants to teleport to you. %s/%s",
+  "bareessentials.tpa.here.incoming": "%s wants you to teleport to their location. %s/%s",
   "bareessentials.tpa.sent": "Teleport request sent to %s.",
   "bareessentials.tpa.norequests": "You have no pending teleport requests!",
   "bareessentials.tpa.inprogress": "Teleport request accepted, teleporting to %s",
-  "bareessentials.targetyou": "you",
-  "bareessentials.targetyoucapital": "You",
   "bareessentials.tpa.denied": "%s denied your teleport request.",
   "bareessentials.tpa.denysuccess": "Incoming teleport request denied.",
+  "bareessentials.tpa.accept.auto.enabled": "You will now automatically accept incoming TPA requests.",
+  "bareessentials.tpa.accept.auto.disabled": "You will no longer automatically accept incoming TPA requests.",
+  "bareessentials.tpa.accept": "ACCEPT",
+  "bareessentials.tpa.deny": "DENY",
+  "bareessentials.tpa.auto.activated": "%s has requested to teleport to you. You have auto-accept enabled, and teleport will happen in 5 seconds. ",
+  "bareessentials.tpa.auto.here.activated": "%s has requested you to teleport to them. You have auto-accept enabled, and teleport will happen in 5 seconds. ",
+  "bareessentials.tpa.auto.cancel": "CANCEL",
 
   "bareessentials.teleport.unsafe": "Destination is unsafe to travel to, teleport cancelled.",
 
-  "bareessentials.spawn.setworldspawn.success": "Global spawn point set to: [X: %s, Y: %s, Z: %s]",
+  "bareessentials.spawn.set.success": "Global spawn point set to: [X: %s, Y: %s, Z: %s]",
   "bareessentials.spawn.tospawn": "Teleporting to world spawn...",
+  "bareessentials.spawn.position": "The spawn point is: [X: %s, Y: %s, Z: %s].",
 
   "bareessentials.fly.enabled": "%s can now fly!",
   "bareessentials.fly.disabled": "%s can no longer fly!",
@@ -40,5 +46,9 @@
   "bareessentials.cooldown.active": "You can't use that command for another %s seconds.",
 
   "bareessentials.sethome": "Setting your home!",
-  "bareessentials.sethome.overwrite": "Setting your home! (Overwriting previous home)"
+  "bareessentials.sethome.overwrite": "Setting your home! (Overwriting previous home)",
+
+
+  "bareessentials.targetyou": "you",
+  "bareessentials.targetyoucapital": "You"
 }

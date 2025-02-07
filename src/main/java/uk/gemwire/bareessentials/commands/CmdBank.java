@@ -36,7 +36,7 @@ import net.minecraft.server.level.ServerPlayer;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.data.Bank;
 
-public class CmdBalance {
+public class CmdBank {
 
     public static String getCurrencySymbol(ServerLevel level) {
         return switch (level.getGameRules().getRule(BareEssentials.CURRENCY_SYMBOL).get()) {

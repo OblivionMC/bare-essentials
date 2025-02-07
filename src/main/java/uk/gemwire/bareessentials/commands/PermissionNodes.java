@@ -88,6 +88,10 @@ public class PermissionNodes {
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
     public static final PermissionNode<Boolean> BANK_SET = new PermissionNode<>(MODID, "cmd.bank.account.set",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
+    public static final PermissionNode<Boolean> BANK_GIVE = new PermissionNode<>(MODID, "cmd.bank.account.give",
+        PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
+    public static final PermissionNode<Boolean> BANK_REMOVE = new PermissionNode<>(MODID, "cmd.bank.account.remove",
+        PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
     public static final PermissionNode<Boolean> BANK_CLEAR = new PermissionNode<>(MODID, "cmd.bank.account.clear",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
     public static final PermissionNode<Boolean> BANK_VALUE_SET = new PermissionNode<>(MODID, "cmd.bank.value.set",
@@ -147,6 +151,8 @@ public class PermissionNodes {
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
     public static final PermissionNode<Boolean> BANK_GET = new PermissionNode<>(MODID, "cmd.bank.account.get",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
+    public static final PermissionNode<Boolean> BANK_GET_OTHERS = new PermissionNode<>(MODID, "cmd.bank.account.get.others",
+        PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
     public static final PermissionNode<Boolean> BANK_VALUE_GET = new PermissionNode<>(MODID, "cmd.bank.value.get",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
     public static final PermissionNode<Boolean> BANK_TOP = new PermissionNode<>(MODID, "cmd.bank.top",
@@ -196,6 +202,8 @@ public class PermissionNodes {
     public static final PermissionNode<Boolean> TP_BACK = new PermissionNode<>(MODID, "cmd.tp.back",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
     public static final PermissionNode<Boolean> TPA = new PermissionNode<>(MODID, "cmd.tpa",
+        PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
+    public static final PermissionNode<Boolean> TPA_HERE = new PermissionNode<>(MODID, "cmd.tpa.here",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));
     public static final PermissionNode<Boolean> TPA_DENY = new PermissionNode<>(MODID, "cmd.tpa.deny",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_ALL));

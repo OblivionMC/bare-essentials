@@ -26,10 +26,20 @@ package uk.gemwire.bareessentials.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.locale.Language;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.timers.FunctionCallback;
+import net.minecraft.world.level.timers.FunctionTagCallback;
+import net.minecraft.world.level.timers.TimerQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gemwire.bareessentials.BareEssentials;
@@ -52,7 +62,7 @@ public class CmdTeleportRequest {
         if (!cd.isCooldownExpired(sender, "tpa")) {
             sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
         } else {
-            if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
+            if (!bk.playerHasEnough(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
                 return 0;
             cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().getInt(BareEssentials.TPA_COOLDOWN));
 
@@ -65,14 +75,30 @@ public class CmdTeleportRequest {
                 return 0;
             }
 
+            if (PendingTeleports.hasAutoAccept(target)) {
+                PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(sender, target, true, true));
+                bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST));
+
+                autoAccept(target, sender, false);
+
+                sender.sendSystemMessage(Component.translatable(Language.getInstance()
+                    .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()));
+                return Command.SINGLE_SUCCESS;
+            }
+
             logger.info("Request valid, saving..");
             target.sendSystemMessage(Component.translatable(Language.getInstance()
-                .getOrDefault("bareessentials.tpa.incoming"), sender.getDisplayName().getString()));
+                .getOrDefault("bareessentials.tpa.incoming"), sender.getDisplayName().getString(),
+                Component.translatable("bareessentials.tpa.accept").withStyle(Style.EMPTY.withColor(TextColor.fromLegacyFormat(ChatFormatting.GREEN)).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpa accept"))),
+                Component.translatable("bareessentials.tpa.deny").withStyle(Style.EMPTY.withColor(TextColor.fromLegacyFormat(ChatFormatting.RED)).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpa deny")))
+            ));
 
             PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(sender, target, true, false));
+            bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST));
 
             sender.sendSystemMessage(Component.translatable(Language.getInstance()
-                .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()));
+                .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()
+            ));
         }
         return Command.SINGLE_SUCCESS;
     }
@@ -88,7 +114,7 @@ public class CmdTeleportRequest {
         if (!cd.isCooldownExpired(sender, "tpa")) {
             sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
         } else {
-            if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
+            if (!bk.playerHasEnough(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
                 return 0;
             cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().getInt(BareEssentials.TPA_COOLDOWN));
 
@@ -102,10 +128,26 @@ public class CmdTeleportRequest {
             }
 
             logger.info("Request valid, saving..");
+
+            if (PendingTeleports.hasAutoAccept(target)) {
+                PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(sender, target, true, true));
+                bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST));
+
+                autoAccept(target, sender, true);
+
+                sender.sendSystemMessage(Component.translatable(Language.getInstance()
+                    .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()));
+                return Command.SINGLE_SUCCESS;
+            }
+
             target.sendSystemMessage(Component.translatable(Language.getInstance()
-                .getOrDefault("bareessentials.tpahere.incoming"), sender.getDisplayName().getString()));
+                .getOrDefault("bareessentials.tpa.here.incoming"), sender.getDisplayName().getString(),
+                Component.translatable("bareessentials.tpa.accept").withStyle(Style.EMPTY.withColor(TextColor.fromLegacyFormat(ChatFormatting.GREEN)).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpa accept"))),
+                Component.translatable("bareessentials.tpa.deny").withStyle(Style.EMPTY.withColor(TextColor.fromLegacyFormat(ChatFormatting.RED)).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpa deny")))
+            ));
 
             PendingTeleports.PENDING.add(new PendingTeleports.TeleportRequest(sender, target, true, true));
+            bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST));
 
             sender.sendSystemMessage(Component.translatable(Language.getInstance()
                 .getOrDefault("bareessentials.tpa.sent"), target.getDisplayName().getString()));
@@ -114,7 +156,11 @@ public class CmdTeleportRequest {
     }
 
     public static int accept(CommandContext<CommandSourceStack> pSource) {
-        var target = pSource.getSource().getPlayer();
+        return acceptInternal(pSource.getSource().getPlayer());
+    }
+
+    public static int acceptInternal(ServerPlayer target) {
+
         logger.info("Player {} is accepting a pending request..", target.getDisplayName().getString());
 
         var request = PendingTeleports.getRequestFor(target);
@@ -154,7 +200,6 @@ public class CmdTeleportRequest {
             }
         }
 
-
         PendingTeleports.removeRequestFrom(request.sender());
 
         return Command.SINGLE_SUCCESS;
@@ -180,4 +225,29 @@ public class CmdTeleportRequest {
 
         return Command.SINGLE_SUCCESS;
     }
+
+    public static int enableAuto(CommandContext<CommandSourceStack> pSource) {
+        PendingTeleports.enableAutoAccept(pSource.getSource().getPlayer());
+        pSource.getSource().getPlayer().sendSystemMessage(Component.translatable("bareessentials.tpa.accept.auto.enabled"));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    public static int disableAuto(CommandContext<CommandSourceStack> pSource) {
+        PendingTeleports.disableAutoAccept(pSource.getSource().getPlayer());
+        pSource.getSource().getPlayer().sendSystemMessage(Component.translatable("bareessentials.tpa.accept.auto.disabled"));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static void autoAccept(ServerPlayer target, ServerPlayer source, boolean here) {
+        target.sendSystemMessage(Component.translatable("bareessentials.tpa.auto" + (here?".here.":"") + ".activated",
+            source.getDisplayName(),
+            Component.translatable("bareessentials.tpa.auto.cancel").withStyle(Style.EMPTY.withColor(ChatFormatting.RED).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpa deny")))
+        ));
+
+        // 5 seconds in the future
+        long i = target.level().getGameTime() + (long) 20 * 5;
+        TimerQueue<MinecraftServer> timerqueue = source.getServer().getWorldData().overworldData().getScheduledEvents();
+        timerqueue.schedule("tpa" + source.getDisplayName(), i, (s, t, c) -> acceptInternal(target));
+    }
+
 }

@@ -105,6 +105,8 @@ public class BareEssentials {
 
     // Bank is enabled by default, but we'll set it off if we recognize an economy mod loading alongside us *cough* OblivionEconomy
     public static GameRules.Key<GameRules.BooleanValue> BANK_ENABLED = GameRules.register("be.bankEnabled", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
+    // Item market is disabled by default.
+    public static GameRules.Key<GameRules.BooleanValue> MARKET_ENABLED = GameRules.register("e.marketEnabled", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
 
     public static GameRules.Key<GameRules.IntegerValue> CURRENCY_SYMBOL = GameRules.register("be.currencySymbol", GameRules.Category.CHAT, GameRules.IntegerValue.create(0));
     public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("be.bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
