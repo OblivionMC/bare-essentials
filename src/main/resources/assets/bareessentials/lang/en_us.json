@@ -34,6 +34,10 @@
   "bareessentials.bank.unable": "Unable to view or modify player %s's balance. Something is wrong.",
   "bareessentials.bank.insufficient": "You do not have enough money to do that! You need at least %s%s.",
   "bareessentials.bank.clear": "Set player %s's balance to %s0.",
+  "bareessentials.bank.market.itemvalue": "The market value of %s is %s%s.",
+  "bareessentials.bank.market.novalue": "%s has no market value.",
+  "bareessentials.bank.market.setvalue": "Set the market value of %s to %s%s.",
+  "bareessentials.bank.market.clearedvalue": "Removed the market value of %s (now 0).",
 
   "bareessentials.heal": "Healed %s.",
   "bareessentials.feed": "Fed %s.",

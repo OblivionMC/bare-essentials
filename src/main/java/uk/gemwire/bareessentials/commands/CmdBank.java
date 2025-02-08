@@ -27,16 +27,22 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.data.Bank;
+import uk.gemwire.bareessentials.data.Market;
 
 import java.util.Comparator;
 import java.util.List;
@@ -213,6 +219,44 @@ public class CmdBank {
 
         public static int execute(CommandContext<CommandSourceStack> cmd) {
             displayTopBanks(cmd.getSource().getPlayer());
+            return Command.SINGLE_SUCCESS;
+        }
+    }
+
+    public static class Value {
+        public static int get(CommandContext<CommandSourceStack> cmd) {
+            Market mkt = Market.getOrCreate(cmd.getSource().getLevel());
+            ItemStack itm = cmd.getSource().getPlayer().getItemInHand(InteractionHand.MAIN_HAND);
+
+            mkt.computeIfItemHasValue(BuiltInRegistries.ITEM.getKey(itm.getItem()),
+                (item, value) -> cmd.getSource().sendSystemMessage(Component.translatable("bareessentials.bank.market.itemvalue", itm.getDisplayName(), CmdBank.getCurrencySymbol(cmd.getSource().getLevel()), value)),
+                (item) -> cmd.getSource().sendSystemMessage(Component.translatable("bareessentials.bank.market.novalue", itm.getDisplayName()))
+            );
+
+            return Command.SINGLE_SUCCESS;
+        }
+
+        public static int set(CommandContext<CommandSourceStack> cmd) {
+            long amount = cmd.getArgument("amount", Long.class);
+
+            Market mkt = Market.getOrCreate(cmd.getSource().getLevel());
+            ItemStack itm = cmd.getSource().getPlayer().getItemInHand(InteractionHand.MAIN_HAND);
+
+            mkt.updateItemValue(BuiltInRegistries.ITEM.getKey(itm.getItem()), amount);
+
+            cmd.getSource().sendSystemMessage(Component.translatable("bareessentials.bank.market.setvalue", itm.getDisplayName(), CmdBank.getCurrencySymbol(cmd.getSource().getLevel()), amount));
+
+            return Command.SINGLE_SUCCESS;
+        }
+
+        public static int clear(CommandContext<CommandSourceStack> cmd) {
+            Market mkt = Market.getOrCreate(cmd.getSource().getLevel());
+            ItemStack itm = cmd.getSource().getPlayer().getItemInHand(InteractionHand.MAIN_HAND);
+
+            mkt.updateItemValue(BuiltInRegistries.ITEM.getKey(itm.getItem()), 0);
+
+            cmd.getSource().sendSystemMessage(Component.translatable("bareessentials.bank.market.clearedvalue", itm.getDisplayName()));
+
             return Command.SINGLE_SUCCESS;
         }
     }
