@@ -128,6 +128,8 @@ public class PermissionNodes {
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
     public static final PermissionNode<Boolean> INVSEE_ENDER = new PermissionNode<>(MODID, "cmd.invsee.ender",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
+    public static final PermissionNode<Boolean> INVSEE_OFFLINE = new PermissionNode<>(MODID, "cmd.invsee.offline",
+        PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
     public static final PermissionNode<Boolean> ITEM_LORE = new PermissionNode<>(MODID, "cmd.item.lore",
         PermissionTypes.BOOLEAN, (player, uuid, contexts) -> player != null && player.hasPermissions(Commands.LEVEL_GAMEMASTERS));
     public static final PermissionNode<Boolean> ITEM_NAME = new PermissionNode<>(MODID, "cmd.item.name",
@@ -258,8 +260,8 @@ public class PermissionNodes {
             EDITSIGN, EDITSIGN_SET, EDITSIGH_CLEAR,
             EDITBOOK, EDITBOOK_AUTHOR, EDITBOOK_TITLE, EDITBOOK_TEXT,
             TP_SELF, TP_OTHERS, TP_ALL, TP_RANDOM, TP_HERE, TP_OFFLINE,
-            TP_BACK, TPA, TPA_ACCEPT, TPA_ACCEPT_AUTO, TPA_DENY, TPA_CANCEL,
-            BANK, BANK_GET, BANK_VALUE_GET, BANK_PAY, BANK_OFFER, BANK_OFFER_ACCEPT, BANK_OFFER_DENY, BANK_OFFER_TOGGLE, BANK_TOP,
+            TP_BACK, TPA, TPA_ACCEPT, TPA_ACCEPT_AUTO, TPA_DENY, TPA_CANCEL, TPA_HERE,
+            BANK, BANK_GET, BANK_VALUE_GET, BANK_PAY, BANK_OFFER, BANK_OFFER_ACCEPT, BANK_OFFER_DENY, BANK_OFFER_TOGGLE, BANK_TOP, BANK_GIVE, BANK_REMOVE, BANK_GET_OTHERS,
             BANK_SET, BANK_VALUE_SET, BANK_VALUE_CLEAR, BANK_CLEAR,
             LIST,
             NEAR,
@@ -273,7 +275,7 @@ public class PermissionNodes {
             REPLY,
             PLAYTIME, PLAYTIME_OTHERS,
             SPAWN_FIND, SPAWN_GOTO, SPAWN_SET,
-            INVSEE, INVSEE_ENDER,
+            INVSEE, INVSEE_ENDER, INVSEE_OFFLINE,
             ITEM_GIVE, ITEM_LORE, ITEM_NAME,
             XP, XP_SET, XP_GIVE, XP_CLEAR,
             MOVE, MOVE_BOTTOM, MOVE_DOWN, MOVE_UP, MOVE_TOP, MOVE_FORWARD

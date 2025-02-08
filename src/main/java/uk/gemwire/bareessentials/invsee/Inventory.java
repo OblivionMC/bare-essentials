@@ -29,13 +29,13 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
@@ -43,34 +43,26 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.storage.PlayerDataStorage;
-import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.network.NetworkHooks;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
 import uk.gemwire.bareessentials.BareEssentials;
+import uk.gemwire.bareessentials.commands.PermissionNodes;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.UUID;
 
-//TODO Apparently capabilities changed, this is for Curle to check in on when time permits.
 public class Inventory {
-
-    private static final Field pds = ObfuscationReflectionHelper.findField(MinecraftServer.class, "playerDataStorage");
-    static { pds.setAccessible(true); }
-    private static final Field pbn = ObfuscationReflectionHelper.findField(GameProfileCache.class, "profilesByName");
-    static { pbn.setAccessible(true); }
-    private static final Field pDir = ObfuscationReflectionHelper.findField(PlayerDataStorage.class, "playerDir");
-    static { pDir.setAccessible(true); }
 
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_USERS = (context, builder) -> {
         try {
             return SharedSuggestionProvider.suggest(
-                ((Map<String, Object>) pbn.get((context.getSource().getServer().getProfileCache()))).keySet(), builder);
-        } catch (IllegalAccessException e) {
+                context.getSource().getServer().getProfileCache().profilesByName.keySet(), builder);
+        } catch (NullPointerException e) {
             throw new RuntimeException(e);
         }
     };
@@ -80,9 +72,9 @@ public class Inventory {
         BareEssentials.LOGGER.info(inspector.getDisplayName().getString() + " is opening the inventory of " + username);
         var optionalPlayer = ServerLifecycleHooks.getCurrentServer().getProfileCache().get(username);
         BareEssentials.LOGGER.info("Opening inventory for " + username + ", user " + (optionalPlayer.isPresent() ? "is present." : "is empty."));
-        optionalPlayer.ifPresent(gameProfile -> NetworkHooks.openScreen(inspector, new SimpleMenuProvider((a, b, c) -> {
+        optionalPlayer.ifPresent(gameProfile -> inspector.openMenu(new SimpleMenuProvider((a, b, c) -> {
             try {
-                return MiniInventoryMenu.fourRows(a, b, gameProfile.getId());
+                return MiniInventoryMenu.fourRows(a, b, gameProfile.getId(), PermissionAPI.getPermission(inspector, PermissionNodes.INVSEE_OFFLINE));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -99,7 +91,7 @@ public class Inventory {
             super(pType, pContainerId, pPlayerInventory, pContainer, pRows);
         }
 
-        private MiniInventoryMenu(MenuType<?> pType, int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, int pRows, UUID id) throws IllegalAccessException {
+        private MiniInventoryMenu(MenuType<?> pType, int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, int pRows, UUID id, boolean allowOffline) throws IllegalAccessException {
             this(pType, pContainerId, pPlayerInventory, new SimpleContainer(9 * pRows), pRows);
 
             this.id = id;
@@ -109,10 +101,17 @@ public class Inventory {
                 // Player online
                 BareEssentials.LOGGER.info("Player online; synchronizing inventory");
                 targetInv = sp.getInventory();
-            } else {
+            } else if (allowOffline) {
                 // Player offline
                 BareEssentials.LOGGER.info("Player offline; reading inventory from NBT");
                 targetInv = new OfflinePlayerInventory(id);
+            } else {
+                BareEssentials.LOGGER.info("Inspector does not have permission to see inventories of offline players.");
+                ItemStack noAccessItem = new ItemStack(Items.BARRIER.asItem());
+                noAccessItem.set(DataComponents.CUSTOM_NAME, Component.literal("NO ACCESS"));
+                noAccessItem.set(DataComponents.LORE, ItemLore.EMPTY.withLineAdded(Component.literal("You do not have permission to read inventories of offline players.")));
+                getContainer().setItem(getContainer().getContainerSize() / 2, noAccessItem);
+                return;
             }
 
             // Copy data to the menu
@@ -121,8 +120,8 @@ public class Inventory {
             }
         }
 
-        public static MiniInventoryMenu fourRows(int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, UUID id) throws IllegalAccessException {
-            return new MiniInventoryMenu(MenuType.GENERIC_9x4, pContainerId, pPlayerInventory, 4, id);
+        public static MiniInventoryMenu fourRows(int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, UUID id, boolean allowOffline) throws IllegalAccessException {
+            return new MiniInventoryMenu(MenuType.GENERIC_9x4, pContainerId, pPlayerInventory, 4, id, allowOffline);
         }
 
         @Override
@@ -140,9 +139,9 @@ public class Inventory {
                     int j = compoundtag.getByte("Slot") & 255;
                     if (i == j) {
                         if (listtag.size() > i)
-                            listtag.set(i, getContainer().getItem(j).serializeNBT());
+                            listtag.set(i, getContainer().getItem(j).save(pPlayer.level().registryAccess()));
                         else
-                            listtag.add(getContainer().getItem(j).serializeNBT());
+                            listtag.add(getContainer().getItem(j).save(pPlayer.level().registryAccess()));
                     }
                 }
 
@@ -151,10 +150,10 @@ public class Inventory {
                 try {
                     File playerDataFolder = getPlayerDataFolderFor(id);
                     File file1 = File.createTempFile(id + "-", ".dat", playerDataFolder);
-                    NbtIo.writeCompressed(data, file1);
+                    NbtIo.writeCompressed(data, file1.toPath());
                     File file2 = new File(playerDataFolder, id + ".dat");
                     File file3 = new File(playerDataFolder, id + ".dat_old");
-                    Util.safeReplaceFile(file2, file1, file3);
+                    Util.safeReplaceFile(file2.toPath(), file1.toPath(), file3.toPath());
                 } catch (IOException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
@@ -167,10 +166,9 @@ public class Inventory {
             }
         }
         private static File getPlayerDataFolderFor(UUID id) throws IllegalAccessException {
-            pds.setAccessible(true);
-            PlayerDataStorage playerData = (PlayerDataStorage) pds.get(ServerLifecycleHooks.getCurrentServer());
-            pDir.setAccessible(true);
-            return (File) pDir.get(playerData);
+            PlayerDataStorage playerData = ServerLifecycleHooks.getCurrentServer().playerDataStorage;
+
+            return playerData.playerDir;
         }
     }
 
@@ -187,7 +185,7 @@ public class Inventory {
                 if (datafile.exists() && datafile.isFile()) {
                     // Player offline but has data
                     try {
-                        userData = NbtIo.readCompressed(datafile);
+                        userData = NbtIo.readCompressed(datafile.toPath(), NbtAccounter.unlimitedHeap());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -197,7 +195,7 @@ public class Inventory {
                     for (int i = 0; i < listtag.size(); ++i) {
                         CompoundTag compoundtag = listtag.getCompound(i);
                         int j = compoundtag.getByte("Slot") & 255;
-                        ItemStack itemstack = ItemStack.of(compoundtag);
+                        ItemStack itemstack = ItemStack.parse(ServerLifecycleHooks.getCurrentServer().registryAccess(), compoundtag).orElseThrow();
                         if (!itemstack.isEmpty() && j <= getContainerSize()) {
                             setItem(j, itemstack);
                         }

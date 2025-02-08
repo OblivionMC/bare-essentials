@@ -63,7 +63,7 @@ public class SavedInventories extends SavedData {
         return pCompoundTag;
     }
 
-    public static SavedInventories load(CompoundTag tag) {
+    public static SavedInventories load(CompoundTag tag, HolderLookup.Provider prov) {
         CompoundTag invs = tag.getCompound("invs");
 
         Map<UUID, List<CompoundTag>> saves = new HashMap<>();

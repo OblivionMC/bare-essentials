@@ -23,6 +23,7 @@
  */
 package uk.gemwire.bareessentials.commands;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
@@ -33,8 +34,13 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.commands.TeleportCommand;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.server.permission.PermissionAPI;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
@@ -276,6 +282,21 @@ public class BareCommands {
                 .then(Commands.argument("user", StringArgumentType.word())
                     .executes(c -> Inventory.openInventoryOf(c.getSource().getPlayer(), StringArgumentType.getString(c, "user")))
                     .suggests(Inventory.SUGGEST_USERS)
+                )
+                .then(Commands.literal("ender")
+                    .requires(hasPermissionNode(PermissionNodes.INVSEE, PermissionNodes.INVSEE_ENDER))
+                    .then(Commands.argument("user", EntityArgument.player())
+                        .executes(c -> {
+                            ServerPlayer target = c.getArgument("user", ServerPlayer.class);
+                            c.getSource().getPlayer().openMenu(
+                                new SimpleMenuProvider(
+                                    (p_53124_, p_53125_, p_53126_) -> ChestMenu.threeRows(p_53124_, p_53125_, target.getEnderChestInventory()), Component.literal("INVSEE ENDER")
+                                )
+                            );
+
+                            return Command.SINGLE_SUCCESS;
+                        })
+                    )
                 )
         );
 
