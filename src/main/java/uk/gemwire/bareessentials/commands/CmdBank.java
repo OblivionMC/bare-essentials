@@ -31,10 +31,17 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.data.Bank;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class CmdBank {
 
@@ -64,10 +71,10 @@ public class CmdBank {
 
         if (accts.hasUser(player)) {
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.balance"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                "bareessentials.bank.balance"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
         } else {
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.balance.unable"), player.getDisplayName().getString()));
+                "bareessentials.bank.unable"), player.getDisplayName().getString()));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -92,10 +99,10 @@ public class CmdBank {
                 accts.setUserBalance(player, accts.getUserBalance(player) + (long) amt);
 
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.give"), getCurrencySymbol(player.serverLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                    "bareessentials.bank.give"), getCurrencySymbol(player.serverLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.unable"), player.getDisplayName().getString()));
+                    "bareessentials.bank.unable"), player.getDisplayName().getString()));
             }
 
             return Command.SINGLE_SUCCESS;
@@ -121,10 +128,10 @@ public class CmdBank {
                 accts.setUserBalance(player, amt);
 
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.set"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                    "bareessentials.bank.set"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.unable"), player.getDisplayName().getString()));
+                    "bareessentials.bank.unable"), player.getDisplayName().getString()));
             }
 
             return Command.SINGLE_SUCCESS;
@@ -151,13 +158,73 @@ public class CmdBank {
                 accts.setUserBalance(player, balance - (balance - (long) amt <= 0 ? amt = (int) balance : (long) amt));
                 // Don't subtract more than they have; cap it at limiting to their balance.
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.remove"), getCurrencySymbol(player.serverLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
+                    "bareessentials.bank.remove"), getCurrencySymbol(player.serverLevel()), amt, player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel()), accts.getUserBalance(player)));
             } else {
                 cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                    "bareessentials.balance.unable"), player.getDisplayName().getString()));
+                    "bareessentials.bank.unable"), player.getDisplayName().getString()));
             }
 
             return Command.SINGLE_SUCCESS;
         }
     }
+
+    public static class Clear {
+        public static int executeOnSelf(CommandContext<CommandSourceStack> cmd) {
+            return execute(cmd, cmd.getSource().getPlayer());
+        }
+
+        public static int executeOnOther(CommandContext<CommandSourceStack> cmd) throws CommandSyntaxException {
+            return execute(cmd, EntityArgument.getPlayer(cmd, "user"));
+        }
+
+
+        public static int execute(CommandContext<CommandSourceStack> cmd, ServerPlayer player) {
+            Bank accts = Bank.getOrCreate(cmd.getSource().getLevel());
+
+            if (accts.hasUser(player)) {
+                accts.setUserBalance(player, 0);
+                cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
+                    "bareessentials.bank.clear"), player.getDisplayName().getString(), getCurrencySymbol(player.serverLevel())));
+            } else {
+                cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
+                    "bareessentials.bank.unable"), player.getDisplayName().getString()));
+            }
+
+            return Command.SINGLE_SUCCESS;
+        }
+    }
+
+    public static class Top {
+        private static List<Map.Entry<UUID, Long>> sortedBanks;
+
+        public static void calculateTopBanks(MinecraftServer server) {
+            var accs = Bank.getOrCreate(server.overworld()).accounts;
+
+            sortedBanks = accs.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).toList();
+
+        }
+
+        public static void displayTopBanks(ServerPlayer player) {
+            var packets = player.getServer().getScoreboard().getStartTrackingPackets(BareEssentials.BANK_ACCOUNT_SORTED_OBJECTIVE);
+            for (Packet<?> packet : packets) {
+                player.connection.send(packet);
+            }
+        }
+
+        public static int execute(CommandContext<CommandSourceStack> cmd) {
+            displayTopBanks(cmd.getSource().getPlayer());
+            return Command.SINGLE_SUCCESS;
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+

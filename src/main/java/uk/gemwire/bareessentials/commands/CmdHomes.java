@@ -33,6 +33,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 import uk.gemwire.bareessentials.data.Bank;
 import uk.gemwire.bareessentials.data.Homes;
 
@@ -88,7 +89,7 @@ public class CmdHomes {
             home.setUserHome(player, BlockPos.containing(player.getPosition(0)));
 
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.sethome")));
+                "bareessentials.home.set")));
 
             return Command.SINGLE_SUCCESS;
         }
@@ -109,7 +110,7 @@ public class CmdHomes {
             home.setUserHome(player, BlockPos.containing(player.getPosition(0)));
 
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
-                "bareessentials.sethome.overwrite")));
+                "bareessentials.home.set.overwrite")));
 
             return Command.SINGLE_SUCCESS;
         }
@@ -124,6 +125,20 @@ public class CmdHomes {
 
             player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.home.deleted")));
 
+            return Command.SINGLE_SUCCESS;
+        }
+    }
+
+    public class Get {
+        public static int execute(CommandContext<CommandSourceStack> cmd) {
+            ServerPlayer player = cmd.getSource().getPlayer();
+            Homes home = Homes.getOrCreate(cmd.getSource().getLevel());
+            BlockPos position = home.getUserHome(cmd.getSource().getPlayer());
+
+            if (position == null)
+                player.sendSystemMessage(Component.translatable("bareessentials.home.nohome"));
+            else
+                player.sendSystemMessage(Component.translatable("bareessentials.home.location", position.getX(), position.getY(), position.getZ()));
             return Command.SINGLE_SUCCESS;
         }
     }

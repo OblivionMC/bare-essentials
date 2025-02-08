@@ -266,7 +266,7 @@ public class BareCommands {
                     ))
                 .then(Commands.literal("get")
                     .requires(hasPermissionNode(PermissionNodes.HOME, PermissionNodes.HOME_GET))
-                    .executes(CmdHomes::executeGet)
+                    .executes(CmdHomes.Get::execute)
                 )
         );
 

@@ -59,7 +59,7 @@ public class Cooldowns extends SavedData {
         return new CompoundTag();
     }
 
-    public static Cooldowns load(CompoundTag tag) {
+    public static Cooldowns load(CompoundTag tag, final HolderLookup.Provider prov) {
         // Do not save or load cooldowns, they only exist temporarily.
         return new Cooldowns();
     }

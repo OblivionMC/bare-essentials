@@ -66,7 +66,7 @@ public class Homes extends SavedData {
         return pCompoundTag;
     }
 
-    public static Homes load(CompoundTag tag) {
+    public static Homes load(CompoundTag tag, final HolderLookup.Provider prov) {
         CompoundTag accts = tag.getCompound("homes");
         Map<UUID, BlockPos> homes = new HashMap<>();
         for (String key : accts.getAllKeys()) {

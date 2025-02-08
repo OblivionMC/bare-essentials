@@ -27,26 +27,28 @@
   "bareessentials.godmode.enabled": "God mode enabled for %s!",
   "bareessentials.godmode.disabled": "God mode disabled for %s!",
 
-  "bareessentials.balance": "Player %s's balance is %s%s.",
-  "bareessentials.balance.give" : "Added %s%s to player %s's balance. New total: %s%s.",
-  "bareessentials.balance.set": "Set player %s's balance to %s%s.",
-  "bareessentials.balance.remove":  "Subtracted %s%s from the balance of player %s. New total: %s%s.",
-  "bareessentials.balance.unable": "Unable to view or modify player %s's balance. Something is wrong.",
-  "bareessentials.balance.insufficient": "You do not have enough money to do that! You need at least %s%s.",
+  "bareessentials.bank.balance": "Player %s's balance is %s%s.",
+  "bareessentials.bank.give" : "Added %s%s to player %s's balance. New total: %s%s.",
+  "bareessentials.bank.set": "Set player %s's balance to %s%s.",
+  "bareessentials.bank.remove":  "Subtracted %s%s from the balance of player %s. New total: %s%s.",
+  "bareessentials.bank.unable": "Unable to view or modify player %s's balance. Something is wrong.",
+  "bareessentials.bank.insufficient": "You do not have enough money to do that! You need at least %s%s.",
+  "bareessentials.bank.clear": "Set player %s's balance to %s0.",
 
   "bareessentials.heal": "Healed %s.",
   "bareessentials.feed": "Fed %s.",
 
-  "bareessentials.home.wrongdimension": "You can only use /home or /sethome in the Overworld!",
+  "bareessentials.home.wrongdimension": "You can only use /home or /home set in the Overworld!",
   "bareessentials.home.teleporting": "Teleporting you to your home..",
-  "bareessentials.home.nohome": "You do not have a home to teleport to! Use /sethome somewhere safe.",
-  "bareessentials.home.confirmoverwrite": "You already have a home set. Use /sethome overwrite to confirm that you wish to replace this home with the new one.",
+  "bareessentials.home.nohome": "You do not have a home to teleport to! Use /home set somewhere safe.",
+  "bareessentials.home.confirmoverwrite": "You already have a home set. Use /home set overwrite to confirm that you wish to replace this home with the new one.",
   "bareessentials.home.deleted": "Your home has been deleted.",
+  "bareessentials.home.location": "Your home is at [X: %s, Y: %s, Z: %s].",
+  "bareessentials.home.set": "Setting your home!",
+  "bareessentials.home.set.overwrite": "Setting your home! (Overwriting previous home)",
+
 
   "bareessentials.cooldown.active": "You can't use that command for another %s seconds.",
-
-  "bareessentials.sethome": "Setting your home!",
-  "bareessentials.sethome.overwrite": "Setting your home! (Overwriting previous home)",
 
 
   "bareessentials.targetyou": "you",

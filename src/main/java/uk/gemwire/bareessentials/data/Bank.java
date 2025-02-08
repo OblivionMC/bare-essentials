@@ -23,6 +23,7 @@
  */
 package uk.gemwire.bareessentials.data;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.locale.Language;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +33,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.scores.ScoreHolder;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.commands.CmdBank;
@@ -40,6 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static uk.gemwire.bareessentials.BareEssentials.BANK_ACCOUNT_SORTED_OBJECTIVE;
 import static uk.gemwire.bareessentials.BareEssentials.DAILY_INCOME;
 import static uk.gemwire.bareessentials.BareEssentials.STARTING_BALANCE;
 
@@ -60,6 +64,16 @@ public class Bank extends SavedData {
         = new SavedData.Factory<>(Bank::new, Bank::load, null);
 
     @Override
+    public void setDirty() {
+        super.setDirty();
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        for (var acc : accounts.entrySet()) {
+            setPlayerBankScore(acc.getKey(), server);
+        }
+    }
+
+    @Override
     public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag, final @NotNull HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         for (var acc : accounts.entrySet()) {
@@ -70,7 +84,7 @@ public class Bank extends SavedData {
         return pCompoundTag;
     }
 
-    public static Bank load(CompoundTag tag) {
+    public static Bank load(CompoundTag tag, final HolderLookup.Provider prov) {
         CompoundTag accts = tag.getCompound("accounts");
         Map<UUID, Long> accounts = new HashMap<>();
         for (String key : accts.getAllKeys())
@@ -84,7 +98,7 @@ public class Bank extends SavedData {
     }
 
     public long getUserBalance(ServerPlayer p) {
-        if (!hasUser(p)) { accounts.put(p.getUUID(), (long) p.getServer().getGameRules().getInt(STARTING_BALANCE)); return accounts.get(p.getUUID()); }
+        if (!hasUser(p)) { accounts.put(p.getUUID(), (long) p.getServer().getGameRules().getInt(STARTING_BALANCE)); setDirty(); return accounts.get(p.getUUID()); }
         for (var acc : accounts.entrySet()) {
             if (acc.getKey().equals(p.getUUID())) {
                 return acc.getValue();
@@ -131,7 +145,13 @@ public class Bank extends SavedData {
         BareEssentials.LOGGER.info("Granting the " + s.getGameRules().getInt(DAILY_INCOME) + " daily income to all players.");
         for (var acct : accounts.entrySet()) {
             acct.setValue(acct.getValue() + s.getGameRules().getInt(DAILY_INCOME));
+            setDirty();
         }
+    }
+
+    public void setPlayerBankScore(UUID player, MinecraftServer server) {
+        GameProfile profile = server.getProfileCache().get(player).get();
+        server.getScoreboard().getOrCreatePlayerScore(ScoreHolder.fromGameProfile(profile), BANK_ACCOUNT_SORTED_OBJECTIVE).set(Math.toIntExact(accounts.get(player)));
     }
 
 }

@@ -23,9 +23,16 @@
  */
 package uk.gemwire.bareessentials;
 
+import com.mojang.authlib.GameProfile;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.numbers.FixedFormat;
+import net.minecraft.network.chat.numbers.NumberFormat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -119,6 +126,9 @@ public class BareEssentials {
 
     public static GameRules.Key<GameRules.BooleanValue> OP_OVERRIDES_COOLDOWN = GameRules.register("be.opOverridesCooldowns", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
 
+    public static ObjectiveCriteria BANK_ACCOUNT_VALUE = ObjectiveCriteria.registerCustom("bank_value");
+    public static Objective BANK_ACCOUNT_SORTED_OBJECTIVE;
+
     public static Logger LOGGER = LogManager.getLogger(BareEssentials.class);
 
 
@@ -132,9 +142,13 @@ public class BareEssentials {
     static class Events {
         @SubscribeEvent
         public static void started(ServerStartedEvent e) {
+
+            e.getServer().getScoreboard().addObjective("be_banks", BANK_ACCOUNT_VALUE, Component.literal("Bank Accounts"), ObjectiveCriteria.RenderType.INTEGER, true, null);
+
             // Load bank details into the static map.
             Bank accts = Bank.getOrCreate(e.getServer().overworld());
             LOGGER.info("Loaded " + accts.accounts.size() + " bank accounts.");
+
 
             Homes homes = Homes.getOrCreate(e.getServer().overworld());
             LOGGER.info("Loaded " + homes.homes.size() + " user homes.");
