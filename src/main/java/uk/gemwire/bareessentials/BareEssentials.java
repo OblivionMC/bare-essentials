@@ -23,15 +23,10 @@
  */
 package uk.gemwire.bareessentials;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.numbers.FixedFormat;
-import net.minecraft.network.chat.numbers.NumberFormat;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -41,7 +36,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.server.permission.PermissionAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gemwire.bareessentials.commands.BareCommands;
@@ -54,11 +48,11 @@ import uk.gemwire.bareessentials.data.Homes;
  * Provides the following commands
  *
  * For OP:
- *  setspawn
+ *  setspawn                                *
  *  editsign set/clear
  *  repair
- *  tp random/all/offline/toggle/here
- *  bank set/value set
+ *  tp random/all/offline/toggle/here       * offline, random
+ *  bank set/value set                      *
  *  speed
  *  move top/up/down/bottom/forward
  *  editbook title/author/name/text
@@ -68,18 +62,18 @@ import uk.gemwire.bareessentials.data.Homes;
  *  break
  *  broadcast
  *  lightning
- *  invsee ender
+ *  invsee ender                            *
  *  enchant
- *  fly
+ *  fly                                     *
  *  vanish
  *  pos
- *  god
+ *  god                                     *
  *  infinite
  *  item lore/name
  *  burn
  *  xp get/set/give
- *  feed
- *  heal
+ *  feed                                    *
+ *  heal                                    *
  *  kittycannon
  *  beezooka
  *  tempban
@@ -88,12 +82,12 @@ import uk.gemwire.bareessentials.data.Homes;
  *
  *
  * For players:
- *  bank get/value get/top/pay get/offer/toggle/accept/deny
+ *  bank get/value get/top/pay get/offer/toggle/accept/deny * offer accept/deny/toggle pay
  *  nick set/get
  *  whois
  *  condense
  *  mail read/clear/send/sendtemp
- *  home set/get/goto
+ *  home set/get/goto                                       *
  *  warp list/goto
  *  near
  *  tp back/deny/accept auto/ask cancel
@@ -104,7 +98,7 @@ import uk.gemwire.bareessentials.data.Homes;
  *  list
  *  r/reply
  *  playtime
- *  spawn
+ *  spawn                                                   *
  */
 
 @Mod("bareessentials")
