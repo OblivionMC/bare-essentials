@@ -300,16 +300,6 @@ public class BareCommands {
                 )
         );
 
-
-
-
-
-
-
-
-
-
-
         // /tp all x y z
         event.getDispatcher().getRoot().getChild("teleport").addChild(
             literal("all")
@@ -472,8 +462,15 @@ public class BareCommands {
 
         // /tp Curle random
 
-        // /tp back
-        // /back
+
+        var back = event.getDispatcher().register(
+            literal("back")
+                .executes(BackCommand::execute)
+        );
+
+        event.getDispatcher().getRoot()
+            .getChild("tp")
+            .addChild(back);
     }
 
     private static Predicate<CommandSourceStack> bankAnd(Predicate<CommandSourceStack> p) {
