@@ -42,6 +42,7 @@ import uk.gemwire.bareessentials.commands.BareCommands;
 import uk.gemwire.bareessentials.commands.PermissionNodes;
 import uk.gemwire.bareessentials.data.Bank;
 import uk.gemwire.bareessentials.data.Homes;
+import uk.gemwire.bareessentials.data.TeleportRewind;
 
 
 /**
@@ -112,6 +113,7 @@ public class BareEssentials {
     public static GameRules.Key<GameRules.IntegerValue> CURRENCY_SYMBOL = GameRules.register("be.currencySymbol", GameRules.Category.CHAT, GameRules.IntegerValue.create(0));
     public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("be.bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
     public static GameRules.Key<GameRules.IntegerValue> DAILY_INCOME = GameRules.register("be.bankDailyIncome", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
+    // TODO
     public static GameRules.Key<GameRules.IntegerValue> MAX_HOMES = GameRules.register("be.maxHomes", GameRules.Category.PLAYER, GameRules.IntegerValue.create(1));
     public static GameRules.Key<GameRules.IntegerValue> TPA_COST = GameRules.register("be.tpaCost", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
     public static GameRules.Key<GameRules.IntegerValue> SPAWN_COST = GameRules.register("be.spawnCost", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
@@ -119,6 +121,9 @@ public class BareEssentials {
     public static GameRules.Key<GameRules.IntegerValue> SPAWN_COOLDOWN = GameRules.register("be.spawnCooldown", GameRules.Category.PLAYER, GameRules.IntegerValue.create(5 * 20 * 60));
 
     public static GameRules.Key<GameRules.BooleanValue> OP_OVERRIDES_COOLDOWN = GameRules.register("be.opOverridesCooldowns", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
+
+    // Whether /back will traverse the stack of back-able events. If you go to the nether and then accept a tpa back to the overworld, you can /back twice to return to the Overworld nether portal, if stacking is enabled.
+    public static GameRules.Key<GameRules.BooleanValue> BACK_STACK = GameRules.register("be.backStack", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
 
     public static ObjectiveCriteria BANK_ACCOUNT_VALUE = ObjectiveCriteria.registerCustom("bank_value");
     public static Objective BANK_ACCOUNT_SORTED_OBJECTIVE;
@@ -154,6 +159,9 @@ public class BareEssentials {
             // Ensure the new player has a bank account so they receive income while offline.
             Bank accts = Bank.getOrCreate(e.getEntity().getServer().overworld());
             accts.getUserBalance((ServerPlayer) e.getEntity());
+            // Ensure the player's last rewind position is available as soon as they log in.
+            TeleportRewind rewinds = TeleportRewind.getOrCreate(e.getEntity().getServer().overworld());
+
         }
 
         @SubscribeEvent
