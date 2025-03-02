@@ -142,10 +142,8 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     implementation "curse.maven:luckperms-431733:${luckperms_version}"
+    implementation "curse.maven:corail-243707:${corail_version}"
 }
-
-
-
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
