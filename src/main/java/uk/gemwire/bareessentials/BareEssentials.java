@@ -38,6 +38,7 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.gemwire.bareessentials.commands.BackCommand;
 import uk.gemwire.bareessentials.commands.BareCommands;
 import uk.gemwire.bareessentials.commands.PermissionNodes;
 import uk.gemwire.bareessentials.data.Bank;
@@ -135,6 +136,10 @@ public class BareEssentials {
         IEventBus forge = NeoForge.EVENT_BUS;
         forge.addListener(BareCommands::registerCommands);
         forge.addListener(PermissionNodes::registerPermissions);
+
+        forge.addListener(BackCommand::commandTeleport);
+        forge.addListener(BackCommand::deathTeleport);
+        forge.addListener(BackCommand::portalTeleport);
     }
 
     @EventBusSubscriber(modid = "bareessentials", bus = EventBusSubscriber.Bus.MOD)
