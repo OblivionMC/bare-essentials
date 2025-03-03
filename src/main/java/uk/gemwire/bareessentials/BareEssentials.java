@@ -92,7 +92,7 @@ import uk.gemwire.bareessentials.data.TeleportRewind;
  *  home set/get/goto                                       *
  *  warp list/goto
  *  near
- *  tp back/deny/accept auto/ask cancel
+ *  tp back/deny/accept auto/ask cancel                     *
  *  seen
  *  pos
  *  ping
