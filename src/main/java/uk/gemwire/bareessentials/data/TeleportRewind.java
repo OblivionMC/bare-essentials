@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -61,14 +62,14 @@ public class TeleportRewind extends SavedData {
         return level.getDataStorage().computeIfAbsent(TYPE);
     }
 
-    public TeleportRewind(Map<UUID, TeleportEvent> firstBacks) {
-        for (Map.Entry<UUID, TeleportEvent> tele : firstBacks.entrySet()) {
-            data.playerBacks.put(tele.getKey(), new Stack<>());
-            data.playerBacks.get(tele.getKey()).add(tele.getValue());
+    public Stack<TeleportEvent> getBacksFor(ServerPlayer player) {
+        if (!data.playerBacks.containsKey(player.getUUID())) {
+            data.playerBacks.put(player.getUUID(), new Stack<>());
             setDirty();
         }
-    }
 
+        return data.playerBacks.get(player.getUUID());
+    }
 
     /**
      * Teleport Events are a record of Type,Source,Destination
