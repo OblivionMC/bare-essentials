@@ -202,15 +202,10 @@ public class BareCommands {
 
                 .then(Commands.literal("clear")
                     .requires(bankAnd(hasPermissionNode(PermissionNodes.BANK, PermissionNodes.BANK_CLEAR)))
-
-                    .then(Commands.argument("amount", IntegerArgumentType.integer())
-                        .executes(CmdBank.Clear::executeOnSelf) // /balance remove <amount>
-                    )
+                    .executes(CmdBank.Clear::executeOnSelf) // /balance clear
 
                     .then(Commands.argument("user", EntityArgument.player())
-                        .then(Commands.argument("amount", IntegerArgumentType.integer())
-                            .executes(CmdBank.Clear::executeOnOther) // /balance remove <user> <amount>
-                        )
+                        .executes(CmdBank.Clear::executeOnOther) // /balance clear <user>
                     )
                 )
 
