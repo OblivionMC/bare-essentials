@@ -50,7 +50,7 @@ public class Cooldowns extends SavedData {
         public static final Cooldowns.CooldownData EMPTY = new Cooldowns.CooldownData(new HashMap<>());
         public static final Codec<Cooldowns.CooldownData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
-                    Codec.unboundedMap(UUIDUtil.CODEC, Codec.unboundedMap(Codec.STRING, Codec.LONG))
+                    Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.unboundedMap(Codec.STRING, Codec.LONG))
                         .optionalFieldOf("cooldowns", new HashMap<>())
                         .forGetter(Cooldowns.CooldownData::cooldowns)
                 )

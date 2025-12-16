@@ -49,7 +49,7 @@ public class Homes extends SavedData {
         public static final Homes.HomeData EMPTY = new Homes.HomeData(new HashMap<>());
         public static final Codec<Homes.HomeData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
-                    Codec.unboundedMap(UUIDUtil.CODEC, BlockPos.CODEC)
+                    Codec.unboundedMap(UUIDUtil.STRING_CODEC, BlockPos.CODEC)
                         .optionalFieldOf("home", new HashMap<>())
                         .forGetter(Homes.HomeData::homes)
                 )

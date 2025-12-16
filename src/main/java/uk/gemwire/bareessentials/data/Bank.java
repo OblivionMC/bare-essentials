@@ -60,7 +60,7 @@ public class Bank extends SavedData {
         public static final Bank.BankData EMPTY = new Bank.BankData(new HashMap<>());
         public static final Codec<Bank.BankData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
-                    Codec.unboundedMap(UUIDUtil.CODEC, Codec.LONG)
+                    Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.LONG)
                         .optionalFieldOf("accounts", new HashMap<>())
                         .forGetter(Bank.BankData::accounts)
                 )

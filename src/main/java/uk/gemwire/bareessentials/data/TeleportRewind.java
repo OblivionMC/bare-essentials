@@ -28,7 +28,7 @@ public class TeleportRewind extends SavedData {
         public static final TeleportRewind.TeleportRewindData EMPTY = new TeleportRewind.TeleportRewindData(new HashMap<>());
         public static final Codec<TeleportRewind.TeleportRewindData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
-                    Codec.unboundedMap(UUIDUtil.CODEC, TeleportEvent.CODEC.listOf().xmap(l -> { Stack<TeleportEvent> s = new Stack<>(); s.addAll(l); return s; }, Function.identity()))
+                    Codec.unboundedMap(UUIDUtil.STRING_CODEC, TeleportEvent.CODEC.listOf().xmap(l -> { Stack<TeleportEvent> s = new Stack<>(); s.addAll(l); return s; }, Function.identity()))
                         .optionalFieldOf("backs", new HashMap<>())
                         .forGetter(TeleportRewindData::playerBacks)
                 )
