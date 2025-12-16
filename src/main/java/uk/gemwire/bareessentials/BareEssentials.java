@@ -151,7 +151,7 @@ public class BareEssentials {
         @SubscribeEvent
         public static void started(ServerStartedEvent e) {
             if (!e.getServer().getScoreboard().getObjectiveNames().contains("be_banks"))
-                e.getServer().getScoreboard().addObjective("be_banks", BANK_ACCOUNT_VALUE, Component.literal("Bank Accounts"), ObjectiveCriteria.RenderType.INTEGER, true, null);
+                BANK_ACCOUNT_SORTED_OBJECTIVE = e.getServer().getScoreboard().addObjective("be_banks", BANK_ACCOUNT_VALUE, Component.literal("Bank Accounts"), ObjectiveCriteria.RenderType.INTEGER, true, null);
 
             // Load bank details into the static map.
             Bank accts = Bank.getOrCreate(e.getServer().overworld());
