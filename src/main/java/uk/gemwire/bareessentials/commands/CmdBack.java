@@ -51,7 +51,7 @@ public class CmdBack {
     public static void commandTeleport(EntityTeleportEvent.TeleportCommand evt) {
         if (evt.getEntity() instanceof ServerPlayer player) {
             var tp = TeleportRewind.getOrCreate(player.level().getServer().overworld());
-            var stack = tp.getData().playerBacks().get(player.getUUID());
+            var stack = tp.getBacksFor(player);
             stack.add(
                 new TeleportRewind.TeleportEvent(
                     TeleportRewind.EventType.COMMAND,
@@ -70,7 +70,7 @@ public class CmdBack {
     public static void deathTeleport(LivingDeathEvent evt) {
         if (evt.getEntity() instanceof ServerPlayer player) {
             var tp = TeleportRewind.getOrCreate(player.level().getServer().overworld());
-            var stack = tp.getData().playerBacks().get(player.getUUID());
+            var stack = tp.getBacksFor(player);
             stack.add(
                 new TeleportRewind.TeleportEvent(
                     TeleportRewind.EventType.COMMAND,
@@ -85,7 +85,7 @@ public class CmdBack {
     public static void portalTeleport(EntityTravelToDimensionEvent evt) {
         if (evt.getEntity() instanceof ServerPlayer player) {
             var tp = TeleportRewind.getOrCreate(player.level().getServer().overworld());
-            var stack = tp.getData().playerBacks().get(player.getUUID());
+            var stack = tp.getBacksFor(player);
             stack.add(
                 new TeleportRewind.TeleportEvent(
                     TeleportRewind.EventType.COMMAND,
