@@ -23,8 +23,13 @@ public class CmdBack {
         var splayer = cmd.getSource().getPlayer();
         boolean stack = server.overworld().getGameRules().get(BareEssentials.BACK_STACK);
 
-        // Pop always; if no stacking, just re-insert the last element with source and destination swapped so you get sent back.
-        TeleportRewind.TeleportEvent evt = rewinds.getData().playerBacks().get(player).pop();
+        TeleportRewind.TeleportEvent evt = new TeleportRewind.TeleportEvent(TeleportRewind.EventType.COMMAND, new BlockPos(0,0,0), new BlockPos(0,0,0));
+
+        if (rewinds.getData().playerBacks().get(player).empty())
+            splayer.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.tp.back.emptystack")));
+        else
+            // Pop always; if no stacking, just re-insert the last element with source and destination swapped so you get sent back.
+            evt = rewinds.getData().playerBacks().get(player).pop();
 
         if (!stack) {
             BlockPos.MutableBlockPos evtDest = evt.destination().mutable();

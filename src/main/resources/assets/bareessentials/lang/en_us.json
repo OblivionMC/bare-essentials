@@ -15,6 +15,8 @@
   "bareessentials.tpa.auto.here.activated": "%s has requested you to teleport to them. You have auto-accept enabled, and teleport will happen in 5 seconds. ",
   "bareessentials.tpa.auto.cancel": "CANCEL",
 
+  "bareessentials.tp.back.emptystack": "There are no saved locations for you to move back to.",
+
   "bareessentials.teleport.unsafe": "Destination is unsafe to travel to, teleport cancelled.",
 
   "bareessentials.spawn.set.success": "Global spawn point set to: [X: %s, Y: %s, Z: %s]",
