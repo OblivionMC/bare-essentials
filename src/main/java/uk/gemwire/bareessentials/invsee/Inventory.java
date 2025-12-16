@@ -38,8 +38,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.CachedUserNameToIdResolver;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
 import net.minecraft.world.Container;
+import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityEquipment;
@@ -50,6 +52,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.storage.PlayerDataStorage;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -145,22 +148,9 @@ public class Inventory {
             if (targetInv instanceof OfflinePlayerInventory opi) {
                 CompoundTag data = opi.getUserData();
 
-                ListTag listtag = data.getList("Inventory").get();
+                TagValueOutput out = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);
 
-                // Save to compound
-                for (int i = 0; i < 9 * 4; i++) {
-                    CompoundTag compoundtag = listtag.getCompound(i).get();
-                    int j = compoundtag.getByte("Slot").get() & 255;
-                    if (i == j) {
-                        if (listtag.size() > i)
-                            listtag.set(i, ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, getContainer().getItem(j)).getOrThrow());
-                            //save(pPlayer.level().registryAccess()));
-                        else
-                            listtag.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, getContainer().getItem(j)).getOrThrow());
-                    }
-                }
-
-                data.put("Inventory", listtag);
+                opi.save(out.list("Inventory", ItemStackWithSlot.CODEC));
 
                 try {
                     File playerDataFolder = getPlayerDataFolderFor(id);
