@@ -378,7 +378,7 @@ public class BareCommands {
 
         // /tp Curle here
 
-        event.getDispatcher().getRoot().getChild("tp").getChild("targets").addChild(
+        event.getDispatcher().getRoot().getChild("teleport").getChild("targets").addChild(
             literal("here")
                 .executes(
                     p_139047_ -> TeleportCommand.teleportToPos(
