@@ -40,6 +40,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.commands.CmdBank;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -56,11 +57,11 @@ public class Bank extends SavedData {
     );
 
     public record BankData (Map<UUID, Long> accounts) {
-        public static final Bank.BankData EMPTY = new Bank.BankData(Map.of());
+        public static final Bank.BankData EMPTY = new Bank.BankData(new HashMap<>());
         public static final Codec<Bank.BankData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
                     Codec.unboundedMap(UUIDUtil.CODEC, Codec.LONG)
-                        .optionalFieldOf("accounts", Map.of())
+                        .optionalFieldOf("accounts", new HashMap<>())
                         .forGetter(Bank.BankData::accounts)
                 )
                 .apply(p_401439_, Bank.BankData::new)

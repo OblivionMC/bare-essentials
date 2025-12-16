@@ -10,6 +10,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -23,11 +24,11 @@ public class Market extends SavedData {
     );
 
     public record MarketData (Map<Identifier, Long> itemValues) {
-        public static final Market.MarketData EMPTY = new Market.MarketData(Map.of());
+        public static final Market.MarketData EMPTY = new Market.MarketData(new HashMap<>());
         public static final Codec<Market.MarketData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
                     Codec.unboundedMap(Identifier.CODEC, Codec.LONG)
-                        .optionalFieldOf("market", Map.of())
+                        .optionalFieldOf("market", new HashMap<>())
                         .forGetter(Market.MarketData::itemValues)
                 )
                 .apply(p_401439_, Market.MarketData::new)

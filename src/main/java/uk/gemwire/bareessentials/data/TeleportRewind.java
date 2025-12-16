@@ -10,6 +10,7 @@ import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
@@ -24,11 +25,11 @@ public class TeleportRewind extends SavedData {
     );
 
     public record TeleportRewindData (Map<UUID, Stack<TeleportEvent>> playerBacks) {
-        public static final TeleportRewind.TeleportRewindData EMPTY = new TeleportRewind.TeleportRewindData(Map.of());
+        public static final TeleportRewind.TeleportRewindData EMPTY = new TeleportRewind.TeleportRewindData(new HashMap<>());
         public static final Codec<TeleportRewind.TeleportRewindData> CODEC = RecordCodecBuilder.create(
             p_401439_ -> p_401439_.group(
                     Codec.unboundedMap(UUIDUtil.CODEC, TeleportEvent.CODEC.listOf().xmap(l -> { Stack<TeleportEvent> s = new Stack<>(); s.addAll(l); return s; }, Function.identity()))
-                        .optionalFieldOf("backs", Map.of())
+                        .optionalFieldOf("backs", new HashMap<>())
                         .forGetter(TeleportRewindData::playerBacks)
                 )
                 .apply(p_401439_, TeleportRewind.TeleportRewindData::new)
