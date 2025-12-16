@@ -39,7 +39,7 @@ public class BareCommands {
     public static void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
             literal("setspawn")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .executes((s) -> CmdSetWorldSpawn.execute(s.getSource(),
                     BlockPos.containing(s.getSource().getPosition()), 0.0F))
         );
@@ -71,7 +71,7 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("fly")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .executes(CmdFly::executeOnSelf)
 
                 .then(Commands.argument("user", EntityArgument.player())
@@ -81,16 +81,16 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("balance")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ALL))
+                .requires(Commands.hasPermission(Commands.LEVEL_ALL))
                 .executes(CmdBalance::executeOnSelf) // /balance
 
                 .then(Commands.argument("user", EntityArgument.player())
-                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+                    .requires(Commands.hasPermission(Commands.LEVEL_MODERATORS))
                     .executes(CmdBalance::executeOnOther) // /balance <user>
                 )
 
                 .then(Commands.literal("give")
-                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+                    .requires(Commands.hasPermission(Commands.LEVEL_MODERATORS))
 
                     .then(Commands.argument("amount", IntegerArgumentType.integer())
                         .executes(CmdBalance.Give::executeOnSelf) // /balance give <amount>
@@ -105,7 +105,7 @@ public class BareCommands {
                 )
 
                 .then(Commands.literal("set")
-                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+                    .requires(Commands.hasPermission(Commands.LEVEL_MODERATORS))
 
                     .then(Commands.argument("amount", IntegerArgumentType.integer())
                         .executes(CmdBalance.Set::executeOnSelf) // /balance set <amount>
@@ -119,7 +119,7 @@ public class BareCommands {
                 )
 
                 .then(Commands.literal("remove")
-                    .requires(s -> s.hasPermission(Commands.LEVEL_MODERATORS))
+                    .requires(Commands.hasPermission(Commands.LEVEL_MODERATORS))
 
                     .then(Commands.argument("amount", IntegerArgumentType.integer())
                         .executes(CmdBalance.Remove::executeOnSelf) // /balance remove <amount>
@@ -135,7 +135,7 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("god")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .executes(CmdGod::executeOnSelf)
 
                 .then(Commands.argument("user", EntityArgument.player())
@@ -146,7 +146,7 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("heal")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .executes(CmdHeal::executeOnSelf)
 
                 .then(Commands.argument("user", EntityArgument.player())
@@ -156,7 +156,7 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("feed")
-                .requires(s -> s.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                 .executes(CmdHeal.Feed::executeOnSelf)
 
                 .then(Commands.argument("user", EntityArgument.player())
@@ -182,7 +182,7 @@ public class BareCommands {
 
         event.getDispatcher().register(
             literal("invsee")
-                .requires(s -> s.hasPermission(LEVEL_ADMINS))
+                .requires(Commands.hasPermission(LEVEL_ADMINS))
                 .then(Commands.argument("user", StringArgumentType.word())
                     .executes(c -> Inventory.openInventoryOf(c.getSource().getPlayer(), StringArgumentType.getString(c, "user")))
                     .suggests(Inventory.SUGGEST_USERS)

@@ -26,19 +26,23 @@ package uk.gemwire.bareessentials.invsee;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.server.players.CachedUserNameToIdResolver;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Util;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -46,13 +50,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.network.NetworkHooks;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import uk.gemwire.bareessentials.BareEssentials;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,15 +64,15 @@ public class Inventory {
 
     private static final Field pds = ObfuscationReflectionHelper.findField(MinecraftServer.class, "playerDataStorage");
     static { pds.setAccessible(true); }
-    private static final Field pbn = ObfuscationReflectionHelper.findField(GameProfileCache.class, "profilesByName");
-    static { pbn.setAccessible(true); }
     private static final Field pDir = ObfuscationReflectionHelper.findField(PlayerDataStorage.class, "playerDir");
     static { pDir.setAccessible(true); }
+    private static final Field pNames = ObfuscationReflectionHelper.findField(CachedUserNameToIdResolver.class, "profilesByName");
+    static { pNames.setAccessible(true);}
 
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_USERS = (context, builder) -> {
         try {
             return SharedSuggestionProvider.suggest(
-                ((Map<String, Object>) pbn.get((context.getSource().getServer().getProfileCache()))).keySet(), builder);
+                ((Map<String, ? extends Object>)(pNames.get(context.getSource().getServer().services().nameToIdCache()))).keySet(), builder);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -77,11 +81,11 @@ public class Inventory {
     public static int openInventoryOf(ServerPlayer inspector, String username) {
 
         BareEssentials.LOGGER.info(inspector.getDisplayName().getString() + " is opening the inventory of " + username);
-        var optionalPlayer = ServerLifecycleHooks.getCurrentServer().getProfileCache().get(username);
+        var optionalPlayer = ServerLifecycleHooks.getCurrentServer().services().nameToIdCache().get(username);
         BareEssentials.LOGGER.info("Opening inventory for " + username + ", user " + (optionalPlayer.isPresent() ? "is present." : "is empty."));
-        optionalPlayer.ifPresent(gameProfile -> NetworkHooks.openScreen(inspector, new SimpleMenuProvider((a, b, c) -> {
+        optionalPlayer.ifPresent(gameProfile -> inspector.openMenu(new SimpleMenuProvider((a, b, c) -> {
             try {
-                return MiniInventoryMenu.fourRows(a, b, gameProfile.getId());
+                return MiniInventoryMenu.fourRows(a, b, gameProfile.id());
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -131,17 +135,18 @@ public class Inventory {
             if (targetInv instanceof OfflinePlayerInventory opi) {
                 CompoundTag data = opi.getUserData();
 
-                ListTag listtag = data.getList("Inventory", 10);
+                ListTag listtag = data.getList("Inventory").get();
 
                 // Save to compound
                 for (int i = 0; i < 9 * 4; i++) {
-                    CompoundTag compoundtag = listtag.getCompound(i);
-                    int j = compoundtag.getByte("Slot") & 255;
+                    CompoundTag compoundtag = listtag.getCompound(i).get();
+                    int j = compoundtag.getByte("Slot").get() & 255;
                     if (i == j) {
                         if (listtag.size() > i)
-                            listtag.set(i, getContainer().getItem(j).serializeNBT());
+                            listtag.set(i, ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, getContainer().getItem(j)).getOrThrow());
+
                         else
-                            listtag.add(getContainer().getItem(j).serializeNBT());
+                            listtag.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, getContainer().getItem(j)).getOrThrow());
                     }
                 }
 
@@ -150,10 +155,10 @@ public class Inventory {
                 try {
                     File playerDataFolder = getPlayerDataFolderFor(id);
                     File file1 = File.createTempFile(id + "-", ".dat", playerDataFolder);
-                    NbtIo.writeCompressed(data, file1);
-                    File file2 = new File(playerDataFolder, id + ".dat");
-                    File file3 = new File(playerDataFolder, id + ".dat_old");
-                    Util.safeReplaceFile(file2, file1, file3);
+                    NbtIo.writeCompressed(data, file1.toPath());
+                    Path file2 = Path.of(playerDataFolder.toString(), id + ".dat");
+                    Path file3 = Path.of(playerDataFolder.toString(), id + ".dat_old");
+                    Util.safeReplaceFile(file2, file1.toPath(), file3);
                 } catch (IOException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
@@ -177,26 +182,26 @@ public class Inventory {
         private CompoundTag userData;
 
         public OfflinePlayerInventory(final UUID target) {
-            super(new FakePlayer(ServerLifecycleHooks.getCurrentServer().overworld(), new GameProfile(UUID.fromString("bc27afd7-6889-4811-97c9-135ee46cdabc"), "invsee")));
+            super(new FakePlayer(ServerLifecycleHooks.getCurrentServer().overworld(), new GameProfile(UUID.fromString("bc27afd7-6889-4811-97c9-135ee46cdabc"), "invsee")), new EntityEquipment());
 
             try {
                 File playerDataFolder = MiniInventoryMenu.getPlayerDataFolderFor(target);
                 File datafile = new File(playerDataFolder, target + ".dat");
-                BareEssentials.LOGGER.info("Trying to read data for player " + ServerLifecycleHooks.getCurrentServer().getProfileCache().get(target).get().getName() + " from " + datafile.getPath());
+                BareEssentials.LOGGER.info("Trying to read data for player " + ServerLifecycleHooks.getCurrentServer().services().nameToIdCache().get(target).get().name() + " from " + datafile.getPath());
                 if (datafile.exists() && datafile.isFile()) {
                     // Player offline but has data
                     try {
-                        userData = NbtIo.readCompressed(datafile);
+                        userData = NbtIo.readCompressed(datafile.toPath(), NbtAccounter.create(datafile.length()));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
 
-                    ListTag listtag = userData.getList("Inventory", 10);
+                    ListTag listtag = userData.getList("Inventory").get();
 
                     for (int i = 0; i < listtag.size(); ++i) {
-                        CompoundTag compoundtag = listtag.getCompound(i);
-                        int j = compoundtag.getByte("Slot") & 255;
-                        ItemStack itemstack = ItemStack.of(compoundtag);
+                        CompoundTag compoundtag = listtag.getCompound(i).get();
+                        int j = compoundtag.getByte("Slot").get() & 255;
+                        ItemStack itemstack = ItemStack.CODEC.parse(NbtOps.INSTANCE, compoundtag).getOrThrow();
                         if (!itemstack.isEmpty() && j <= getContainerSize()) {
                             setItem(j, itemstack);
                         }

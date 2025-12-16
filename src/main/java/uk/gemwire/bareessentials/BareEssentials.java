@@ -23,15 +23,21 @@
  */
 package uk.gemwire.bareessentials;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRuleCategory;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gemwire.bareessentials.commands.BareCommands;
@@ -41,48 +47,62 @@ import uk.gemwire.bareessentials.data.Homes;
 @Mod("bareessentials")
 public class BareEssentials {
 
-    public static GameRules.Key<GameRules.IntegerValue> CURRENCY_SYMBOL = GameRules.register("be.currencySymbol", GameRules.Category.CHAT, GameRules.IntegerValue.create(0));
-    public static GameRules.Key<GameRules.IntegerValue> STARTING_BALANCE = GameRules.register("be.bankStartingBalance", GameRules.Category.PLAYER, GameRules.IntegerValue.create(500));
-    public static GameRules.Key<GameRules.IntegerValue> DAILY_INCOME = GameRules.register("be.bankDailyIncome", GameRules.Category.PLAYER, GameRules.IntegerValue.create(10));
-    public static GameRules.Key<GameRules.IntegerValue> MAX_HOMES = GameRules.register("be.maxHomes", GameRules.Category.PLAYER, GameRules.IntegerValue.create(1));
-    public static GameRules.Key<GameRules.IntegerValue> TPA_COST = GameRules.register("be.tpaCost", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
-    public static GameRules.Key<GameRules.IntegerValue> SPAWN_COST = GameRules.register("be.spawnCost", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0));
-    public static GameRules.Key<GameRules.IntegerValue> TPA_COOLDOWN = GameRules.register("be.tpaCooldown", GameRules.Category.PLAYER, GameRules.IntegerValue.create(15 * 20));
-    public static GameRules.Key<GameRules.IntegerValue> SPAWN_COOLDOWN = GameRules.register("be.spawnCooldown", GameRules.Category.PLAYER, GameRules.IntegerValue.create(5 * 20 * 60));
-
-    public static GameRules.Key<GameRules.BooleanValue> OP_OVERRIDES_COOLDOWN = GameRules.register("be.opOverridesCooldowns", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
-
-    public static Logger LOGGER = LogManager.getLogger(BareEssentials.class);
-
-
     public BareEssentials() {
         IEventBus forge = NeoForge.EVENT_BUS;
         forge.addListener(BareCommands::registerCommands);
     }
 
-    @Mod.EventBusSubscriber(modid="bareessentials", bus= Mod.EventBusSubscriber.Bus.FORGE)
+    public static GameRule<Integer> CURRENCY_SYMBOL;
+    public static GameRule<Integer> STARTING_BALANCE;
+    public static GameRule<Integer> DAILY_INCOME;
+    public static GameRule<Integer> MAX_HOMES;
+    public static GameRule<Integer> TPA_COST;
+    public static GameRule<Integer> SPAWN_COST;
+    public static GameRule<Integer> TPA_COOLDOWN;
+    public static GameRule<Integer> SPAWN_COOLDOWN;
+
+    public static GameRule<Boolean> OP_OVERRIDES_COOLDOWN;
+
+    public static Logger LOGGER = LogManager.getLogger(BareEssentials.class);
+
+    @EventBusSubscriber(modid="bareessentials")
     static class Events {
         @SubscribeEvent
         public static void started(ServerStartedEvent e) {
             // Load bank details into the static map.
             Bank accts = Bank.getOrCreate(e.getServer().overworld());
-            LOGGER.info("Loaded " + accts.accounts.size() + " bank accounts.");
+            LOGGER.info("Loaded " + accts.getData().accounts().size() + " bank accounts.");
             Homes homes = Homes.getOrCreate(e.getServer().overworld());
-            LOGGER.info("Loaded " + homes.homes.size() + " user homes.");
+            LOGGER.info("Loaded " + homes.getData().homes().size() + " user homes.");
         }
 
         @SubscribeEvent
         public static void login(PlayerEvent.PlayerLoggedInEvent e) {
-            if (e.getEntity().level().isClientSide) return;
+            if (e.getEntity().level().isClientSide()) return;
             // Ensure the new player has a bank account so they receive income while offline.
-            Bank accts = Bank.getOrCreate(e.getEntity().getServer().overworld());
+            Bank accts = Bank.getOrCreate(e.getEntity().level().getServer().overworld());
             accts.getUserBalance((ServerPlayer) e.getEntity());
         }
 
         @SubscribeEvent
-        public static void tick(TickEvent.ServerTickEvent e) {
+        public static void tick(ServerTickEvent.Post e) {
             if (e.getServer().overworld().getDayTime() == 0)
                 Bank.getOrCreate(e.getServer().overworld()).updateBalances(e.getServer());
+        }
+
+        @SubscribeEvent
+        public static void register(RegisterEvent e) {
+            if (e.getRegistry() == BuiltInRegistries.GAME_RULE) {
+                CURRENCY_SYMBOL = GameRules.registerInteger("be.currency_symbol", GameRuleCategory.CHAT, 0, 0);
+                STARTING_BALANCE = GameRules.registerInteger("be.bank_starting_balance", GameRuleCategory.PLAYER, 500, 0);
+                DAILY_INCOME = GameRules.registerInteger("be.bank_daily_income", GameRuleCategory.PLAYER, 10, 0);
+                MAX_HOMES = GameRules.registerInteger("be.max_homes", GameRuleCategory.PLAYER, 1, 0);
+                TPA_COST = GameRules.registerInteger("be.tpa_cost", GameRuleCategory.PLAYER, 0, 0);
+                SPAWN_COST = GameRules.registerInteger("be.spawn_cost", GameRuleCategory.PLAYER, 0, 0);
+                TPA_COOLDOWN = GameRules.registerInteger("be.tpa_cooldown", GameRuleCategory.PLAYER, 15 * 20, 0);
+                SPAWN_COOLDOWN = GameRules.registerInteger("be.spawn_cooldown", GameRuleCategory.PLAYER, 5 * 20 * 60, 0);
+                OP_OVERRIDES_COOLDOWN = GameRules.registerBoolean("be.op_overrides_cooldowns", GameRuleCategory.PLAYER, false);
+            }
         }
     }
 }

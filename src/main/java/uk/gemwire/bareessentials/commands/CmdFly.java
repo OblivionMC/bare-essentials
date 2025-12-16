@@ -64,7 +64,7 @@ public class CmdFly {
                 player.getAbilities().mayfly = false;
                 player.getAbilities().flying = false;
                 player.onUpdateAbilities();
-                player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 400, 5));
+                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 400, 5));
 
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                     "bareessentials.fly.disabled"), Component.translatable(Language.getInstance().getOrDefault("bareessentials.targetyoucapital"))));

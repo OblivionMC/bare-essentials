@@ -23,11 +23,16 @@
  */
 package uk.gemwire.bareessentials.data;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -35,49 +40,52 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Homes extends SavedData {
+    public static final SavedDataType<Homes> TYPE = new SavedDataType<>(
+        "homes",
+        Homes::new,
+        Homes.HomeData.CODEC.xmap(Homes::new, Homes::getData),
+        DataFixTypes.SAVED_DATA_SCOREBOARD
+    );
 
-    // The list of all Homes currently loaded
-    public Map<UUID, BlockPos> homes;
-
-    public Homes(Map<UUID, BlockPos> homes) { this.homes = homes; }
-    public Homes() { homes = new HashMap<>(); }
-
-    private static final SavedData.Factory<Homes> homesFactory
-        = new SavedData.Factory<>(Homes::new, Homes::load, null);
-
-    @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
-        CompoundTag tag = new CompoundTag();
-        for (var acc : homes.entrySet()) {
-            CompoundTag pos = new CompoundTag();
-            pos.putInt("x", acc.getValue().getX());
-            pos.putInt("y", acc.getValue().getY());
-            pos.putInt("z", acc.getValue().getZ());
-            tag.put(acc.getKey().toString(), pos);
-        }
-
-        pCompoundTag.put("homes", tag);
-        return pCompoundTag;
+    public record HomeData (Map<UUID, BlockPos> homes) {
+        public static final Homes.HomeData EMPTY = new Homes.HomeData(Map.of());
+        public static final Codec<Homes.HomeData> CODEC = RecordCodecBuilder.create(
+            p_401439_ -> p_401439_.group(
+                    Codec.unboundedMap(UUIDUtil.CODEC, BlockPos.CODEC)
+                        .optionalFieldOf("home", Map.of())
+                        .forGetter(Homes.HomeData::homes)
+                )
+                .apply(p_401439_, Homes.HomeData::new)
+        );
     }
 
-    public static Homes load(CompoundTag tag) {
-        CompoundTag accts = tag.getCompound("homes");
-        Map<UUID, BlockPos> homes = new HashMap<>();
-        for (String key : accts.getAllKeys()) {
-            CompoundTag pos = (CompoundTag) accts.get(key);
-            BlockPos bp = new BlockPos(pos.getInt("x"), pos.getInt("y"), pos.getInt("z"));
-            homes.put(UUID.fromString(key), bp);
-        }
+    Homes.HomeData data;
 
-        return new Homes(homes);
+    private Homes() {
+        this(Homes.HomeData.EMPTY);
+    }
+
+    public Homes(Homes.HomeData p_455071_) {
+        this.data = p_455071_;
+    }
+
+    public Homes.HomeData getData() {
+        return this.data;
+    }
+
+    public void setData(Homes.HomeData p_454945_) {
+        if (!p_454945_.equals(this.data)) {
+            this.data = p_454945_;
+            this.setDirty();
+        }
     }
 
     public static Homes getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(homesFactory, "be_homes");
+        return level.getDataStorage().computeIfAbsent(TYPE);
     }
 
     public BlockPos getUserHome(ServerPlayer p) {
-        for (var acc : homes.entrySet()) {
+        for (var acc : data.homes.entrySet()) {
             if (acc.getKey().equals(p.getUUID())) {
                 return acc.getValue();
             }
@@ -87,9 +95,13 @@ public class Homes extends SavedData {
     }
 
     public void setUserHome(ServerPlayer p, BlockPos b) {
-        if (!hasUserHome(p)) { homes.put(p.getUUID(), b); return; }
+        if (!hasUserHome(p)) {
+            data.homes.put(p.getUUID(), b);
+            setDirty();
+            return;
+        }
 
-        for (var acc : homes.entrySet()) {
+        for (var acc : data.homes.entrySet()) {
             if (acc.getKey().equals(p.getUUID())) {
                 acc.setValue(b);
                 setDirty();
@@ -98,7 +110,7 @@ public class Homes extends SavedData {
     }
 
     public boolean hasUserHome(ServerPlayer player) {
-        return homes.containsKey(player.getUUID());
+        return data.homes.containsKey(player.getUUID());
     }
 
 }

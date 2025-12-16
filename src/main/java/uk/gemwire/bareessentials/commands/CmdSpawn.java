@@ -47,15 +47,15 @@ public class CmdSpawn {
             Bank bk = Bank.getOrCreate(level);
 
             if (cd.isCooldownExpired(player.getPlayer(), "spawn")) {
-                if (!bk.chargePlayer(player.getPlayer(), level.getGameRules().getInt(BareEssentials.SPAWN_COST)))
+                if (!bk.chargePlayer(player.getPlayer(), level.getGameRules().get(BareEssentials.SPAWN_COST)))
                     return 0;
                 player.sendSystemMessage(Component.translatable(Language.getInstance()
                     .getOrDefault("bareessentials.spawn.tospawn")));
                 // Random teleport = cancel if the destination is unsafe
-                if (!player.getPlayer().randomTeleport(level.getSharedSpawnPos().getX() + 0.5, level.getSharedSpawnPos().getY(), level.getSharedSpawnPos().getZ() + 0.5, false))
+                if (!player.getPlayer().randomTeleport(level.getRespawnData().pos().getX() + 0.5, level.getRespawnData().pos().getY(), level.getRespawnData().pos().getZ() + 0.5, false))
                     player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
 
-                cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + player.getLevel().getGameRules().getInt(BareEssentials.SPAWN_COOLDOWN));
+                cd.setCooldownFor(player.getPlayer(), "spawn", level.getGameTime() + player.getLevel().getGameRules().get(BareEssentials.SPAWN_COOLDOWN));
             } else {
                 player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(player.getPlayer(), "spawn")/20));
             }

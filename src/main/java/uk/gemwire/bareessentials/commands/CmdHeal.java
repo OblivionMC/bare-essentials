@@ -64,7 +64,7 @@ public class CmdHeal {
         public static int executeHeal(CommandContext<CommandSourceStack> cmd, ServerPlayer player) {
             player.getFoodData().setFoodLevel(20);
             player.getFoodData().setSaturation(20);
-            player.getFoodData().setExhaustion(0);
+            player.getFoodData().addExhaustion(-40);
 
             cmd.getSource().getPlayer().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault(
                 "bareessentials.feed"), player.getDisplayName().getString()));

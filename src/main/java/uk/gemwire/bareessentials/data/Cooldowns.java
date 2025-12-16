@@ -23,11 +23,16 @@
  */
 package uk.gemwire.bareessentials.data;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jetbrains.annotations.NotNull;
 import uk.gemwire.bareessentials.BareEssentials;
 
@@ -36,56 +41,75 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Cooldowns extends SavedData {
+    public static final SavedDataType<Cooldowns> TYPE = new SavedDataType<>(
+        "cooldowns",
+        Cooldowns::new,
+        Cooldowns.CooldownData.CODEC.xmap(Cooldowns::new, Cooldowns::getData),
+        DataFixTypes.SAVED_DATA_SCOREBOARD
+    );
 
-    // The list of all users with pending cooldowns
-    // User -> { Feature -> Game Time }
-    public Map<UUID, Map<String, Long>> cooldowns;
-
-    public Cooldowns(Map<UUID, Map<String, Long>> cooldowns) { this.cooldowns = cooldowns; }
-    public Cooldowns() { cooldowns = new HashMap<>(); }
-
-    private static final SavedData.Factory<Cooldowns> cooldownsFactory
-        = new SavedData.Factory<>(Cooldowns::new, Cooldowns::load, null);
-
-    @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
-        // Do not save or load cooldowns, they only exist temporarily.
-        return new CompoundTag();
+    public record CooldownData (Map<UUID, Map<String, Long>> cooldowns) {
+        public static final Cooldowns.CooldownData EMPTY = new Cooldowns.CooldownData(Map.of());
+        public static final Codec<Cooldowns.CooldownData> CODEC = RecordCodecBuilder.create(
+            p_401439_ -> p_401439_.group(
+                    Codec.unboundedMap(UUIDUtil.CODEC, Codec.unboundedMap(Codec.STRING, Codec.LONG))
+                        .optionalFieldOf("cooldowns", Map.of())
+                        .forGetter(Cooldowns.CooldownData::cooldowns)
+                )
+                .apply(p_401439_, Cooldowns.CooldownData::new)
+        );
     }
 
-    public static Cooldowns load(CompoundTag tag) {
-        // Do not save or load cooldowns, they only exist temporarily.
-        return new Cooldowns();
+    Cooldowns.CooldownData data;
+
+    private Cooldowns() {
+        this(Cooldowns.CooldownData.EMPTY);
+    }
+
+    public Cooldowns(Cooldowns.CooldownData p_455071_) {
+        this.data = p_455071_;
+    }
+
+    public Cooldowns.CooldownData getData() {
+        return this.data;
+    }
+
+    public void setData(Cooldowns.CooldownData p_454945_) {
+        if (!p_454945_.equals(this.data)) {
+            this.data = p_454945_;
+            this.setDirty();
+        }
     }
 
     public static Cooldowns getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(cooldownsFactory, "be_cooldowns");
+        return level.getDataStorage().computeIfAbsent(TYPE);
     }
 
     public long getCooldownFor(ServerPlayer p, String feature) {
-        return cooldowns.containsKey(p.getUUID()) ?
-                    cooldowns.get(p.getUUID()).getOrDefault(feature, 0L)
-              : 0L;
+        return data.cooldowns.containsKey(p.getUUID()) ?
+               data.cooldowns.get(p.getUUID()).getOrDefault(feature, 0L)
+               : 0L;
     }
 
     public long getRemainingTimeFor(ServerPlayer p, String feature) {
-        return cooldowns.get(p.getUUID()).get(feature) - p.level().getGameTime();
+        return data.cooldowns.get(p.getUUID()).get(feature) - p.level().getGameTime();
     }
 
     public void setCooldownFor(ServerPlayer p, String feature, long gametime) {
         if (!hasPendingCooldown(p)) {
-            Map<String, Long> data = new HashMap<>();
-            data.put(feature, gametime);
-            cooldowns.put(p.getUUID(), data);
+            Map<String, Long> d = new HashMap<>();
+            d.put(feature, gametime);
+            data.cooldowns.put(p.getUUID(), d);
+            setDirty();
             return;
         }
 
         if (!hasPendingCooldownFor(p, feature)) {
-            cooldowns.get(p.getUUID()).put(feature, gametime);
+            data.cooldowns.get(p.getUUID()).put(feature, gametime);
             return;
         }
 
-        for (var acc : cooldowns.entrySet()) {
+        for (var acc : data.cooldowns.entrySet()) {
             if (acc.getKey().equals(p.getUUID())) {
                 for (var ftr : acc.getValue().entrySet()) {
                     if (ftr.equals(feature)) {
@@ -98,12 +122,12 @@ public class Cooldowns extends SavedData {
     }
 
     public boolean hasPendingCooldown(ServerPlayer player) {
-        if (player.hasPermissions(Commands.LEVEL_ADMINS) && player.level().getGameRules().getBoolean(BareEssentials.OP_OVERRIDES_COOLDOWN)) return false;
-        return cooldowns.containsKey(player.getUUID());
+        if (Commands.hasPermission(Commands.LEVEL_ADMINS).test().check(player.permissions()) && player.level().getGameRules().get(BareEssentials.OP_OVERRIDES_COOLDOWN)) return false;
+        return data.cooldowns.containsKey(player.getUUID());
     }
 
     public boolean hasPendingCooldownFor(ServerPlayer player, String feature) {
-        return cooldowns.get(player.getUUID()).containsKey(feature);
+        return data.cooldowns.get(player.getUUID()).containsKey(feature);
     }
 
     public boolean isCooldownExpired(ServerPlayer player, String feature) {

@@ -23,6 +23,9 @@
  */
 package uk.gemwire.bareessentials.data;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.locale.Language;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.LongTag;
@@ -30,12 +33,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.scores.DisplaySlot;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.ScoreboardSaveData;
 import org.jetbrains.annotations.NotNull;
 import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.commands.CmdBalance;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,43 +54,58 @@ import static uk.gemwire.bareessentials.BareEssentials.DAILY_INCOME;
 import static uk.gemwire.bareessentials.BareEssentials.STARTING_BALANCE;
 
 public class Bank extends SavedData {
+    public static final SavedDataType<Bank> TYPE = new SavedDataType<>(
+        "bank",
+        Bank::new,
+        Bank.BankData.CODEC.xmap(Bank::new, Bank::getData),
+        DataFixTypes.SAVED_DATA_SCOREBOARD
+    );
 
-    // The list of all Accounts currently loaded
-    public Map<UUID, Long> accounts;
-
-    public Bank(Map<UUID, Long> accts) { accounts = accts; }
-    public Bank() { accounts = new HashMap<>(); }
-
-    private static final SavedData.Factory<Bank> bankFactory
-        = new SavedData.Factory<>(Bank::new, Bank::load, null);
-
-    @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag pCompoundTag) {
-        CompoundTag tag = new CompoundTag();
-        for (var acc : accounts.entrySet()) {
-            tag.putLong(acc.getKey().toString(), acc.getValue());
-        }
-
-        pCompoundTag.put("accounts", tag);
-        return pCompoundTag;
+    public record BankData (Map<UUID, Long> accounts) {
+        public static final Bank.BankData EMPTY = new Bank.BankData(Map.of());
+        public static final Codec<Bank.BankData> CODEC = RecordCodecBuilder.create(
+            p_401439_ -> p_401439_.group(
+                    Codec.unboundedMap(UUIDUtil.CODEC, Codec.LONG)
+                        .optionalFieldOf("accounts", Map.of())
+                        .forGetter(Bank.BankData::accounts)
+                )
+                .apply(p_401439_, Bank.BankData::new)
+        );
     }
 
-    public static Bank load(CompoundTag tag) {
-        CompoundTag accts = tag.getCompound("accounts");
-        Map<UUID, Long> accounts = new HashMap<>();
-        for (String key : accts.getAllKeys())
-            accounts.put(UUID.fromString(key), ((LongTag) accts.get(key)).getAsLong());
+    BankData data;
 
-        return new Bank(accounts);
+    private Bank() {
+        this(Bank.BankData.EMPTY);
+    }
+
+    public Bank(Bank.BankData p_455071_) {
+        this.data = p_455071_;
+    }
+
+    public Bank.BankData getData() {
+        return this.data;
+    }
+
+    public void setData(Bank.BankData p_454945_) {
+        if (!p_454945_.equals(this.data)) {
+            this.data = p_454945_;
+            this.setDirty();
+        }
     }
 
     public static Bank getOrCreate(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(bankFactory, "be_bank");
+        return level.getDataStorage().computeIfAbsent(TYPE);
     }
 
     public long getUserBalance(ServerPlayer p) {
-        if (!hasUser(p)) { accounts.put(p.getUUID(), (long) p.getServer().getGameRules().getInt(STARTING_BALANCE)); return accounts.get(p.getUUID()); }
-        for (var acc : accounts.entrySet()) {
+        if (!hasUser(p)) {
+            data.accounts.put(p.getUUID(), (long) p.level().getServer().overworld().getGameRules().get(STARTING_BALANCE));
+            this.setDirty();
+            return data.accounts.get(p.getUUID());
+        }
+
+        for (var acc : data.accounts.entrySet()) {
             if (acc.getKey().equals(p.getUUID())) {
                 return acc.getValue();
             }
@@ -92,7 +118,7 @@ public class Bank extends SavedData {
         if (amount == 0) return true;
 
         if (!hasUser(p) || getUserBalance(p) < amount) {
-            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.serverLevel()), amount));
+            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.level()), amount));
             return false;
         }
 
@@ -108,8 +134,13 @@ public class Bank extends SavedData {
     }
 
     public void setUserBalance(ServerPlayer p, long b) {
-        if (!hasUser(p)) { accounts.put(p.getUUID(), (long) p.getServer().getGameRules().getInt(STARTING_BALANCE)); return; }
-        for (var acc : accounts.entrySet()) {
+        if (!hasUser(p)) {
+            data.accounts.put(p.getUUID(), b);
+            setDirty();
+            return;
+        }
+
+        for (var acc : data.accounts.entrySet()) {
             if (acc.getKey().equals(p.getUUID())) {
                 acc.setValue(b);
                 setDirty();
@@ -118,14 +149,15 @@ public class Bank extends SavedData {
     }
 
     public boolean hasUser(ServerPlayer player) {
-        return accounts.containsKey(player.getUUID());
+        return data.accounts.containsKey(player.getUUID());
     }
 
     public void updateBalances(MinecraftServer s) {
-        BareEssentials.LOGGER.info("Granting the " + s.getGameRules().getInt(DAILY_INCOME) + " daily income to all players.");
-        for (var acct : accounts.entrySet()) {
-            acct.setValue(acct.getValue() + s.getGameRules().getInt(DAILY_INCOME));
+        BareEssentials.LOGGER.info("Granting the " + s.overworld().getGameRules().get(DAILY_INCOME) + " daily income to all players.");
+        for (var acct : data.accounts.entrySet()) {
+            acct.setValue(acct.getValue() + s.overworld().getGameRules().get(DAILY_INCOME));
         }
+        setDirty();
     }
 
 }

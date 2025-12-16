@@ -120,7 +120,7 @@ public class CmdHomes {
             ServerPlayer player = cmd.getSource().getPlayer();
             Homes home = Homes.getOrCreate(cmd.getSource().getLevel());
 
-            home.homes.remove(player.getUUID());
+            home.getData().homes().remove(player.getUUID());
 
             player.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.home.deleted")));
 

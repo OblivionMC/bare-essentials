@@ -46,15 +46,15 @@ public class CmdTeleportRequest {
         var sender = pSource.getSource().getPlayer();
 
 
-        Cooldowns cd = Cooldowns.getOrCreate(sender.serverLevel());
-        Bank bk = Bank.getOrCreate(sender.serverLevel());
+        Cooldowns cd = Cooldowns.getOrCreate(sender.level());
+        Bank bk = Bank.getOrCreate(sender.level());
 
         if (!cd.isCooldownExpired(sender, "tpa")) {
             sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
         } else {
-            if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
+            if (!bk.chargePlayer(sender, sender.level().getGameRules().get(BareEssentials.TPA_COST)))
                 return 0;
-            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().getInt(BareEssentials.TPA_COOLDOWN));
+            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().get(BareEssentials.TPA_COOLDOWN));
 
             logger.info("New Teleport Request; {} wants to teleport to {}.", sender.getDisplayName().getString(), target.getDisplayName().getString());
 
@@ -82,15 +82,15 @@ public class CmdTeleportRequest {
         var sender = pSource.getSource().getPlayer();
 
 
-        Cooldowns cd = Cooldowns.getOrCreate(sender.serverLevel());
-        Bank bk = Bank.getOrCreate(sender.serverLevel());
+        Cooldowns cd = Cooldowns.getOrCreate(sender.level());
+        Bank bk = Bank.getOrCreate(sender.level());
 
         if (!cd.isCooldownExpired(sender, "tpa")) {
             sender.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.cooldown.active"), cd.getRemainingTimeFor(sender, "tpa")/20));
         } else {
-            if (!bk.chargePlayer(sender, sender.level().getGameRules().getInt(BareEssentials.TPA_COST)))
+            if (!bk.chargePlayer(sender, sender.level().getGameRules().get(BareEssentials.TPA_COST)))
                 return 0;
-            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().getInt(BareEssentials.TPA_COOLDOWN));
+            cd.setCooldownFor(sender, "tpa", sender.level().getGameTime() + sender.level().getGameRules().get(BareEssentials.TPA_COOLDOWN));
 
             logger.info("New Teleport Request; {} wants {} to teleport to them.", sender.getDisplayName().getString(), target.getDisplayName().getString());
 
@@ -118,7 +118,7 @@ public class CmdTeleportRequest {
         logger.info("Player {} is accepting a pending request..", target.getDisplayName().getString());
 
         var request = PendingTeleports.getRequestFor(target);
-        Cooldowns cd = Cooldowns.getOrCreate(target.serverLevel());
+        Cooldowns cd = Cooldowns.getOrCreate(target.level());
 
         if (request == null) {
             logger.info("Player {} has no pending requests to accept.", target.getDisplayName().getString());
@@ -138,7 +138,7 @@ public class CmdTeleportRequest {
             if (!request.receiver().randomTeleport(request.sender().getX(), request.sender().getY(), request.sender().getZ(), false)) {
                 request.sender().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
                 request.receiver().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
-                cd.setCooldownFor(target, "tpa", target.serverLevel().getGameTime() - 10);
+                cd.setCooldownFor(target, "tpa", target.level().getGameTime() - 10);
             }
         } else {
             logger.info("Request valid, teleporting {} to {}.", request.sender().getDisplayName().getString(), request.receiver().getDisplayName().getString());
@@ -150,7 +150,7 @@ public class CmdTeleportRequest {
 
             if (!request.sender().randomTeleport(target.getX(), target.getY(), target.getZ(), false)) {
                 request.sender().sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.teleport.unsafe")));
-                cd.setCooldownFor(target, "tpa", target.serverLevel().getGameTime() - 10);
+                cd.setCooldownFor(target, "tpa", target.level().getGameTime() - 10);
             }
         }
 
