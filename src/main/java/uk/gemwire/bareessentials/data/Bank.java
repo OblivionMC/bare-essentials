@@ -166,8 +166,10 @@ public class Bank extends SavedData {
     }
 
     public void setPlayerBankScore(UUID player, MinecraftServer server) {
-        GameProfile profile = server.services().profileResolver().fetchById(player).get();
-        server.getScoreboard().getOrCreatePlayerScore(ScoreHolder.fromGameProfile(profile), BANK_ACCOUNT_SORTED_OBJECTIVE).set(Math.toIntExact(data.accounts.get(player)));
+        // TODO: this doesn't seem to work for players logging in for the first time..
+        server.services().profileResolver().fetchById(player).ifPresent(p ->
+            server.getScoreboard().getOrCreatePlayerScore(ScoreHolder.fromGameProfile(p), BANK_ACCOUNT_SORTED_OBJECTIVE).set(Math.toIntExact(data.accounts.get(player)))
+        );
     }
 
 }
