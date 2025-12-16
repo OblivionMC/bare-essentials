@@ -26,9 +26,8 @@ package uk.gemwire.bareessentials.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.locale.Language;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.LongTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -36,20 +35,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
-import net.minecraft.world.scores.DisplaySlot;
-import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.ScoreboardSaveData;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.scores.ScoreHolder;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import uk.gemwire.bareessentials.BareEssentials;
-import uk.gemwire.bareessentials.commands.CmdBalance;
+import uk.gemwire.bareessentials.commands.CmdBank;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static uk.gemwire.bareessentials.BareEssentials.BANK_ACCOUNT_SORTED_OBJECTIVE;
 import static uk.gemwire.bareessentials.BareEssentials.DAILY_INCOME;
 import static uk.gemwire.bareessentials.BareEssentials.STARTING_BALANCE;
 
@@ -98,6 +92,16 @@ public class Bank extends SavedData {
         return level.getDataStorage().computeIfAbsent(TYPE);
     }
 
+    @Override
+    public void setDirty() {
+        super.setDirty();
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        for (var acc : data.accounts.entrySet()) {
+            setPlayerBankScore(acc.getKey(), server);
+        }
+    }
+
     public long getUserBalance(ServerPlayer p) {
         if (!hasUser(p)) {
             data.accounts.put(p.getUUID(), (long) p.level().getServer().overworld().getGameRules().get(STARTING_BALANCE));
@@ -118,7 +122,7 @@ public class Bank extends SavedData {
         if (amount == 0) return true;
 
         if (!hasUser(p) || getUserBalance(p) < amount) {
-            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBalance.getCurrencySymbol(p.level()), amount));
+            p.sendSystemMessage(Component.translatable(Language.getInstance().getOrDefault("bareessentials.balance.insufficient"), CmdBank.getCurrencySymbol(p.level()), amount));
             return false;
         }
 
@@ -158,6 +162,11 @@ public class Bank extends SavedData {
             acct.setValue(acct.getValue() + s.overworld().getGameRules().get(DAILY_INCOME));
         }
         setDirty();
+    }
+
+    public void setPlayerBankScore(UUID player, MinecraftServer server) {
+        GameProfile profile = server.services().profileResolver().fetchById(player).get();
+        server.getScoreboard().getOrCreatePlayerScore(ScoreHolder.fromGameProfile(profile), BANK_ACCOUNT_SORTED_OBJECTIVE).set(Math.toIntExact(data.accounts.get(player)));
     }
 
 }

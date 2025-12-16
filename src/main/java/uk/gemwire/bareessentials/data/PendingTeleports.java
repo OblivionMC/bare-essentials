@@ -29,14 +29,29 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PendingTeleports {
+
     private static Logger logger = LogManager.getLogger();
 
     public record TeleportRequest(ServerPlayer sender, ServerPlayer receiver, boolean pending, boolean tpahere) {
     }
 
     public static final List<TeleportRequest> PENDING = new ArrayList<>();
+    public static final List<UUID> AUTO_ACCEPTS = new ArrayList<>();
+
+    public static boolean hasAutoAccept(ServerPlayer player) {
+        return AUTO_ACCEPTS.contains(player.getUUID());
+    }
+
+    public static void enableAutoAccept(ServerPlayer player) {
+        AUTO_ACCEPTS.add(player.getUUID());
+    }
+
+    public static void disableAutoAccept(ServerPlayer player) {
+        AUTO_ACCEPTS.remove(player.getUUID());
+    }
 
     public static TeleportRequest getRequestFrom(ServerPlayer sender) {
         for (TeleportRequest request : PENDING) {

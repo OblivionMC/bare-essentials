@@ -28,6 +28,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -37,7 +38,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.CachedUserNameToIdResolver;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Util;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -47,16 +47,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
 import uk.gemwire.bareessentials.BareEssentials;
+import uk.gemwire.bareessentials.commands.PermissionNodes;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
@@ -85,7 +88,7 @@ public class Inventory {
         BareEssentials.LOGGER.info("Opening inventory for " + username + ", user " + (optionalPlayer.isPresent() ? "is present." : "is empty."));
         optionalPlayer.ifPresent(gameProfile -> inspector.openMenu(new SimpleMenuProvider((a, b, c) -> {
             try {
-                return MiniInventoryMenu.fourRows(a, b, gameProfile.id());
+                return MiniInventoryMenu.fourRows(a, b, gameProfile.id(), PermissionAPI.getPermission(inspector, PermissionNodes.INVSEE_OFFLINE));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -102,7 +105,7 @@ public class Inventory {
             super(pType, pContainerId, pPlayerInventory, pContainer, pRows);
         }
 
-        private MiniInventoryMenu(MenuType<?> pType, int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, int pRows, UUID id) throws IllegalAccessException {
+        private MiniInventoryMenu(MenuType<?> pType, int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, int pRows, UUID id, boolean allowOffline) throws IllegalAccessException {
             this(pType, pContainerId, pPlayerInventory, new SimpleContainer(9 * pRows), pRows);
 
             this.id = id;
@@ -112,10 +115,17 @@ public class Inventory {
                 // Player online
                 BareEssentials.LOGGER.info("Player online; synchronizing inventory");
                 targetInv = sp.getInventory();
-            } else {
+            } else if (allowOffline) {
                 // Player offline
                 BareEssentials.LOGGER.info("Player offline; reading inventory from NBT");
                 targetInv = new OfflinePlayerInventory(id);
+            } else {
+                BareEssentials.LOGGER.info("Inspector does not have permission to see inventories of offline players.");
+                ItemStack noAccessItem = new ItemStack(Items.BARRIER.asItem());
+                noAccessItem.set(DataComponents.CUSTOM_NAME, Component.literal("NO ACCESS"));
+                noAccessItem.set(DataComponents.LORE, ItemLore.EMPTY.withLineAdded(Component.literal("You do not have permission to read inventories of offline players.")));
+                getContainer().setItem(getContainer().getContainerSize() / 2, noAccessItem);
+                return;
             }
 
             // Copy data to the menu
@@ -124,8 +134,8 @@ public class Inventory {
             }
         }
 
-        public static MiniInventoryMenu fourRows(int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, UUID id) throws IllegalAccessException {
-            return new MiniInventoryMenu(MenuType.GENERIC_9x4, pContainerId, pPlayerInventory, 4, id);
+        public static MiniInventoryMenu fourRows(int pContainerId, net.minecraft.world.entity.player.Inventory pPlayerInventory, UUID id, boolean allowOffline) throws IllegalAccessException {
+            return new MiniInventoryMenu(MenuType.GENERIC_9x4, pContainerId, pPlayerInventory, 4, id, allowOffline);
         }
 
         @Override
@@ -144,7 +154,7 @@ public class Inventory {
                     if (i == j) {
                         if (listtag.size() > i)
                             listtag.set(i, ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, getContainer().getItem(j)).getOrThrow());
-
+                            //save(pPlayer.level().registryAccess()));
                         else
                             listtag.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, getContainer().getItem(j)).getOrThrow());
                     }
@@ -156,9 +166,9 @@ public class Inventory {
                     File playerDataFolder = getPlayerDataFolderFor(id);
                     File file1 = File.createTempFile(id + "-", ".dat", playerDataFolder);
                     NbtIo.writeCompressed(data, file1.toPath());
-                    Path file2 = Path.of(playerDataFolder.toString(), id + ".dat");
-                    Path file3 = Path.of(playerDataFolder.toString(), id + ".dat_old");
-                    Util.safeReplaceFile(file2, file1.toPath(), file3);
+                    File file2 = new File(playerDataFolder, id + ".dat");
+                    File file3 = new File(playerDataFolder, id + ".dat_old");
+                    Util.safeReplaceFile(file2.toPath(), file1.toPath(), file3.toPath());
                 } catch (IOException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
@@ -191,7 +201,7 @@ public class Inventory {
                 if (datafile.exists() && datafile.isFile()) {
                     // Player offline but has data
                     try {
-                        userData = NbtIo.readCompressed(datafile.toPath(), NbtAccounter.create(datafile.length()));
+                        userData = NbtIo.readCompressed(datafile.toPath(), NbtAccounter.unlimitedHeap());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -202,6 +212,7 @@ public class Inventory {
                         CompoundTag compoundtag = listtag.getCompound(i).get();
                         int j = compoundtag.getByte("Slot").get() & 255;
                         ItemStack itemstack = ItemStack.CODEC.parse(NbtOps.INSTANCE, compoundtag).getOrThrow();
+                        //ItemStack itemstack = ItemStack.parse(ServerLifecycleHooks.getCurrentServer().registryAccess(), compoundtag).orElseThrow();
                         if (!itemstack.isEmpty() && j <= getContainerSize()) {
                             setItem(j, itemstack);
                         }
