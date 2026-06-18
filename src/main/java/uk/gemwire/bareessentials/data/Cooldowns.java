@@ -27,6 +27,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -40,7 +41,7 @@ import java.util.UUID;
 
 public class Cooldowns extends SavedData {
     public static final SavedDataType<Cooldowns> TYPE = new SavedDataType<>(
-        "cooldowns",
+        Identifier.parse("cooldowns"),
         Cooldowns::new,
         Cooldowns.CooldownData.CODEC.xmap(Cooldowns::new, Cooldowns::getData),
         DataFixTypes.SAVED_DATA_SCOREBOARD

@@ -247,7 +247,7 @@ public class CmdTeleportRequest {
 
         // 5 seconds in the future
         long i = target.level().getGameTime() + (long) 20 * 5;
-        TimerQueue<MinecraftServer> timerqueue = source.level().getServer().getWorldData().overworldData().getScheduledEvents();
+        TimerQueue<MinecraftServer> timerqueue = source.level().getServer().getScheduledEvents();
         timerqueue.schedule("tpa" + source.getDisplayName(), i, new TeleportTimerCallback(source.getGameProfile().name()));
     }
 

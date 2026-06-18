@@ -173,7 +173,7 @@ public class BareEssentials {
 
         @SubscribeEvent
         public static void tick(ServerTickEvent.Post e) {
-            if (e.getServer().overworld().getDayTime() == 0)
+            if (e.getServer().overworld().getOverworldClockTime() == 0)
                 Bank.getOrCreate(e.getServer().overworld()).updateBalances(e.getServer());
         }
 

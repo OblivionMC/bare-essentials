@@ -27,6 +27,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -39,7 +40,7 @@ import java.util.UUID;
 
 public class Homes extends SavedData {
     public static final SavedDataType<Homes> TYPE = new SavedDataType<>(
-        "homes",
+        Identifier.parse("homes"),
         Homes::new,
         Homes.HomeData.CODEC.xmap(Homes::new, Homes::getData),
         DataFixTypes.SAVED_DATA_SCOREBOARD
