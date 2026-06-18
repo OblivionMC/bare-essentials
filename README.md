@@ -1,15 +1,10 @@
-<h1 align="center">Bare Essentials</h1>
-<h5 align="center">A reimplementation of some features from the old Essentials mods, with some personal twists intended for public servers.</h5>
+# Bare Essentials
+## A reimplementation of some features from the old Essentials mods, with some personal twists intended for public servers.
 
-<p align="center">
-<a href="https://discord.tophatcat.dev">
-    <img src="https://img.shields.io/badge/Discord--brightgreen.svg?style=flat&logo=Discord"/>
-</a>
+[![Discord Badge](https://img.shields.io/badge/Discord-16181C?style=for-the-badge&logo=discord&logoColor=5865F2)](https://discord.moddev.zone)
+[![CurseForge Badge](https://img.shields.io/badge/CurseForge-16181C?style=for-the-badge&logo=curseforge&logoColor=FF784D)](https://www.curseforge.com/minecraft/mc-mods/bare-essentials)
+[![Github Badge](https://img.shields.io/badge/GitHub-16181C?style=for-the-badge&logo=github&logoColor=BBDDE5)](https://github.com/oblivionmc/bare-essentials)
 
-<a href="https://github.com/OblivionMC/bare-essentials/commits/dev">
-    <img src="https://img.shields.io/github/last-commit/OblivionMC/bare-essentials.svg">
-</a>
-</p>
 
 ## Commands list:  
 - ``/tpahere`` Send another player a request to teleport them to you, they can either ``/tpa accept`` or ``/tpa deny`` the request.  
