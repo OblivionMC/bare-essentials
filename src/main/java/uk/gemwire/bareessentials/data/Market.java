@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public class Market extends SavedData {
     public static final SavedDataType<Market> TYPE = new SavedDataType<>(
-        "cooldowns",
+        Identifier.parse("cooldowns"),
         Market::new,
         Market.MarketData.CODEC.xmap(Market::new, Market::getData),
         DataFixTypes.SAVED_DATA_SCOREBOARD

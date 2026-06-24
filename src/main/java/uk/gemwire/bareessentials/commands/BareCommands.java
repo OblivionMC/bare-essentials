@@ -47,14 +47,16 @@ import uk.gemwire.bareessentials.BareEssentials;
 import uk.gemwire.bareessentials.invsee.Inventory;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static net.minecraft.commands.Commands.literal;
 
 public class BareCommands {
 
+    @SafeVarargs // It wants it.
     private static Predicate<CommandSourceStack> hasPermissionNode(PermissionNode<Boolean>... node) {
-        return (CommandSourceStack s) -> !s.isPlayer() || Arrays.stream(node).allMatch(p -> PermissionAPI.getPermission(s.getPlayer(), p, null));
+        return (CommandSourceStack s) -> !s.isPlayer() || Arrays.stream(node).allMatch(p -> PermissionAPI.getPermission(Objects.requireNonNull(s.getPlayer()), p, null));
     }
 
     public static void registerCommands(RegisterCommandsEvent event) {
@@ -273,21 +275,21 @@ public class BareCommands {
                     .executes(c -> Inventory.openInventoryOf(c.getSource().getPlayer(), StringArgumentType.getString(c, "user")))
                     .suggests(Inventory.SUGGEST_USERS)
                 )
-                .then(Commands.literal("ender")
-                    .requires(hasPermissionNode(PermissionNodes.INVSEE, PermissionNodes.INVSEE_ENDER))
-                    .then(Commands.argument("user", EntityArgument.player())
-                        .executes(c -> {
-                            ServerPlayer target = c.getArgument("user", ServerPlayer.class);
-                            c.getSource().getPlayer().openMenu(
-                                new SimpleMenuProvider(
-                                    (p_53124_, p_53125_, p_53126_) -> ChestMenu.threeRows(p_53124_, p_53125_, target.getEnderChestInventory()), Component.literal("INVSEE ENDER")
-                                )
-                            );
+                    .then(Commands.literal("ender")
+                        .requires(hasPermissionNode(PermissionNodes.INVSEE, PermissionNodes.INVSEE_ENDER))
+                        .then(Commands.argument("user", EntityArgument.player())
+                            .executes(c -> {
+                                ServerPlayer target = EntityArgument.getPlayer(c, "user");
+                                c.getSource().getPlayer().openMenu(
+                                    new SimpleMenuProvider(
+                                        (p_53124_, p_53125_, p_53126_) -> ChestMenu.threeRows(p_53124_, p_53125_, target.getEnderChestInventory()), Component.literal("INVSEE ENDER")
+                                    )
+                                );
 
-                            return Command.SINGLE_SUCCESS;
-                        })
+                                return Command.SINGLE_SUCCESS;
+                            })
+                        )
                     )
-                )
         );
 
         // /tp all x y z

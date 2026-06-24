@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -19,7 +20,7 @@ import java.util.function.Function;
 
 public class TeleportRewind extends SavedData {
     public static final SavedDataType<TeleportRewind> TYPE = new SavedDataType<>(
-        "rewind",
+        Identifier.parse("rewind"),
         TeleportRewind::new,
         TeleportRewind.TeleportRewindData.CODEC.xmap(TeleportRewind::new, TeleportRewind::getData),
         DataFixTypes.SAVED_DATA_SCOREBOARD

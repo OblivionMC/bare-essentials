@@ -29,6 +29,7 @@ import net.minecraft.core.UUIDUtil;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,7 +51,7 @@ import static uk.gemwire.bareessentials.BareEssentials.STARTING_BALANCE;
 
 public class Bank extends SavedData {
     public static final SavedDataType<Bank> TYPE = new SavedDataType<>(
-        "bank",
+        Identifier.parse("bank"),
         Bank::new,
         Bank.BankData.CODEC.xmap(Bank::new, Bank::getData),
         DataFixTypes.SAVED_DATA_SCOREBOARD
@@ -158,7 +159,7 @@ public class Bank extends SavedData {
     }
 
     public void updateBalances(MinecraftServer s) {
-        BareEssentials.LOGGER.info("Granting the " + s.overworld().getGameRules().get(DAILY_INCOME) + " daily income to all players.");
+        // BareEssentials.LOGGER.info("Granting the " + s.overworld().getGameRules().get(DAILY_INCOME) + " daily income to all players.");
         for (var acct : data.accounts.entrySet()) {
             acct.setValue(acct.getValue() + s.overworld().getGameRules().get(DAILY_INCOME));
         }
