@@ -1,5 +1,5 @@
 # Bare Essentials
-## A reimplementation of some features from the old Essentials mods, with some personal twists intended for public servers.
+## A reimplementation of some features from the classic Essentials mods, with some personal twists intended for public servers.
 
 [![Discord Badge](https://img.shields.io/badge/Discord-16181C?style=for-the-badge&logo=discord&logoColor=5865F2)](https://discord.moddev.zone)
 [![CurseForge Badge](https://img.shields.io/badge/CurseForge-16181C?style=for-the-badge&logo=curseforge&logoColor=FF784D)](https://www.curseforge.com/minecraft/mc-mods/bare-essentials)
@@ -7,7 +7,8 @@
 
 
 ## Commands list:  
-- ``/tpahere`` Send another player a request to teleport them to you, they can either ``/tpa accept`` or ``/tpa deny`` the request.  
+- ``/tpa [user]`` Send another player a request to teleport to them, they can either ``/tpa accept`` or ``/tpa deny`` the request.  
+- ``/tpa [here] [user]`` Send another player a request to teleport them to you, they can either ``/tpa accept`` or ``/tpa deny`` the request.  
 - ``/setworldspawn`` Set the world spawn to an exact position in the world quickly.  
 - ``/spawn`` Teleport to the world spawn.  
 - ``/sethome [none] [override]`` Set or remove your home location in the world.  
